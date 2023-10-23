@@ -6,4 +6,4 @@ Adapted from the excellent workflow developed by Natasha Picciani at https://git
 
 To create a conda environment to run this workflow:
 
-    conda create -n isoseq -c bioconda snakemake busco transdecoder orthofinder pandas biopython seaborn matplotlib -c conda-forge ete3
+    conda create -n isoseq -c bioconda -c conda-forge snakemake busco transdecoder orthofinder pandas biopython seaborn matplotlib ete3
