@@ -1,0 +1,28 @@
+name: /gpfs/ysm/project/dunn/nnp9/conda_envs/transdecoder
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=1_gnu
+  - libdb=6.2.32=h9c3ff4c_0
+  - libgcc-ng=11.2.0=h1d223b6_11
+  - libgomp=11.2.0=h1d223b6_11
+  - libstdcxx-ng=11.2.0=he4da1e4_11
+  - perl=5.26.2=h36c2ea0_1008
+  - perl-business-isbn=3.004=pl526_0
+  - perl-business-isbn-data=20140910.003=pl526_0
+  - perl-carp=1.38=pl526_3
+  - perl-constant=1.33=pl526_1
+  - perl-data-dumper=2.173=pl526_0
+  - perl-db-file=1.855=pl526h516909a_0
+  - perl-encode=2.88=pl526_1
+  - perl-exporter=5.72=pl526_1
+  - perl-extutils-makemaker=7.36=pl526_1
+  - perl-mime-base64=3.15=pl526_1
+  - perl-parent=0.236=pl526_1
+  - perl-uri=1.76=pl526_0
+  - perl-xsloader=0.24=pl526_0
+  - transdecoder=5.5.0=pl526_2
+prefix: /gpfs/ysm/project/dunn/nnp9/conda_envs/transdecoder

@@ -1,0 +1,25 @@
+species	source	molecule	file	filename
+Danio_rerio	ensembl	peptides	pub/release-105/fasta/danio_rerio/pep/Danio_rerio.GRCz11.pep.all.fa.gz	Danio_rerio.GRCz11.pep.all.fa.gz
+Homo_sapiens	ensembl	peptides	pub/release-105/fasta/homo_sapiens/pep/Homo_sapiens.GRCh38.pep.all.fa.gz	Homo_sapiens.GRCh38.pep.all.fa.gz
+Mus_musculus	ensembl	peptides	pub/release-105/fasta/mus_musculus/pep/Mus_musculus.GRCm39.pep.all.fa.gz	Mus_musculus.GRCm39.pep.all.fa.gz
+Salpingoeca_rosetta	ensemblgenomes	peptides	pub/protists/release-52/fasta/protists_choanoflagellida1_collection/salpingoeca_rosetta_gca_000188695/pep/Salpingoeca_rosetta_gca_000188695.Proterospongia_sp_ATCC50818.pep.all.fa.gz	Salpingoeca_rosetta_gca_000188695.Proterospongia_sp_ATCC50818.pep.all.fa.gz
+Monosiga_brevicollis	ensemblgenomes	peptides	pub/protists/release-52/fasta/protists_choanoflagellida1_collection/monosiga_brevicollis_mx1_gca_000002865/pep/Monosiga_brevicollis_mx1_gca_000002865.V1.0.pep.all.fa.gz	Monosiga_brevicollis_mx1_gca_000002865.V1.0.pep.all.fa.gz
+Lottia_gigantea	ensemblgenomes	peptides	pub/metazoa/release-52/fasta/lottia_gigantea/pep/Lottia_gigantea.Lotgi1.pep.all.fa.gz	Lottia_gigantea.Lotgi1.pep.all.fa.gz
+Octopus_bimaculoides	ensemblgenomes	peptides	pub/metazoa/release-52/fasta/octopus_bimaculoides/pep/Octopus_bimaculoides.PRJNA270931.pep.all.fa.gz	Octopus_bimaculoides.PRJNA270931.pep.all.fa.gz
+Capitella_teleta	ensemblgenomes	peptides	pub/metazoa/release-52/fasta/capitella_teleta/pep/Capitella_teleta.Capitella_teleta_v1.0.pep.all.fa.gz	Capitella_teleta.Capitella_teleta_v1.0.pep.all.fa.gz
+Drosophila_melanogaster	ensemblgenomes	peptides	pub/metazoa/release-52/fasta/drosophila_melanogaster/pep/Drosophila_melanogaster.BDGP6.32.pep.all.fa.gz	Drosophila_melanogaster.BDGP6.32.pep.all.fa.gz
+Amphimedon_queenslandica	ensemblgenomes	peptides	pub/metazoa/release-52/fasta/amphimedon_queenslandica/pep/Amphimedon_queenslandica.Aqu1.pep.all.fa.gz	Amphimedon_queenslandica.Aqu1.pep.all.fa.gz
+Caerhabditis_elegans	ensemblgenomes	peptides	pub/metazoa/release-52/fasta/caenorhabditis_elegans/pep/Caenorhabditis_elegans.WBcel235.pep.all.fa.gz	Caenorhabditis_elegans.WBcel235.pep.all.fa.gz
+Trichoplax_adhaerens	ensemblgenomes	peptides	pub/metazoa/release-52/fasta/trichoplax_adhaerens/pep/Trichoplax_adhaerens.ASM15027v1.pep.all.fa.gz	Trichoplax_adhaerens.ASM15027v1.pep.all.fa.gz
+Crassostrea_virginica	other_gz	peptides	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/002/022/765/GCF_002022765.2_C_virginica-3.0/GCF_002022765.2_C_virginica-3.0_protein.faa.gz	GCF_002022765.2_C_virginica-3.0_protein.faa.gz
+Orbicella_faveolata	other_gz	peptides	https://ftp.ncbi.nlm.nih.gov/genomes/all/annotation_releases/48498/100/GCF_002042975.1_ofav_dov_v1/GCF_002042975.1_ofav_dov_v1_protein.faa.gz	GCF_002042975.1_ofav_dov_v1_protein.faa.gz
+Aurelia_aurita_Atlantic	other_gz	peptides	https://marinegenomics.oist.jp/aurelia_aurita/download/AUR21_r04_proteins.fa.gz	AUR21_r04_proteins.fa.gz
+Aurelia_aurita_DGold	gdrive	peptides	--load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1hZhGGOOkgAiOUL44XnUm8EwoXN_kczEU' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1hZhGGOOkgAiOUL44XnUm8EwoXN_kczEU" && rm -rf /tmp/cookies.txt
+Morbakka_virulenta	other_gz	peptides	https://marinegenomics.oist.jp/morbakka_virulenta/download/MOR05_r06_proteins.fa.gz	MOR05_r06_proteins.fa.gz
+Hydra_vulgaris	other_gz	peptides	https://research.nhgri.nih.gov/hydra/download/genemodels_proteins/hydra2.0_genemodels.aa.gz	hydra2.0_genemodels.aa.gz
+Hydractinia_symbiolongicarpus	other_gz	peptides	https://research.nhgri.nih.gov/hydractinia/download/protein_models/symbio/Hsym_primary_v1.0.aa.gz	Hsym_primary_v1.0.aa.gz
+Hydractinia_echinata	other_gz	peptides	https://research.nhgri.nih.gov/hydractinia/download/protein_models/echinata/Hech_primary_v1.0.aa.gz	Hech_primary_v1.0.aa.gz
+Nematostella_vectensis	other	peptides	https://genomes.stowers.org/files/pub/nematostella/Nvec/genomes/Nvec200/aligned/tcs_v2/tcs_v2.20211013.protein.versioned.fasta	tcs_v2.20211013.protein.versioned.fasta
+Rhopilema_esculentum	other	peptides	https://ftp.cngb.org/pub/gigadb/pub/10.5524/100001_101000/100720/pep.fasta	pep.fasta
+Clytia_hemisphaerica	other	peptides	http://marimba.obs-vlfr.fr/sites/default/files/download/full_nr_align.fasta	full_nr_align.fasta
+Nemopilema_nomurai	local	peptides	resources/local/Nemopilema_nomurai.pep.fasta	original:NNO.final_gene_set.pep.fa

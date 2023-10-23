@@ -1,0 +1,12 @@
+species: Podocoryna_carnea
+
+# Path to accession numbers and links for public data download
+targets: config/download_targets.tsv
+
+# Reference before processing:
+reference:
+  path: resources/isoseq/Male_Med.ALL.Clustered.hq.CLEAN.cd_99.Min200.fasta
+  filename: Male_Med.ALL.Clustered.hq.CLEAN.cd_99.Min200.fasta
+  filestem: Male_Med.ALL.Clustered.hq.CLEAN.cd_99.Min200
+  gtf: resources/isoseq/Male_Med.ALL.Clustered.hq.CLEAN.cd_99.Min200.fasta.eggnog.positive.gtf
+  gtfname: Male_Med.ALL.Clustered.hq.CLEAN.cd_99.Min200.fasta.eggnog.positive.gtf
