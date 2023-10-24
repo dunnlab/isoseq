@@ -5,8 +5,8 @@ targets: config/download_targets.tsv
 
 # Reference before processing:
 reference:
-  path: resources/isoseq/Male_Med.ALL.Clustered.hq.CLEAN.cd_99.Min200.fasta
-  filename: Male_Med.ALL.Clustered.hq.CLEAN.cd_99.Min200.fasta
-  filestem: Male_Med.ALL.Clustered.hq.CLEAN.cd_99.Min200
-  gtf: resources/isoseq/Male_Med.ALL.Clustered.hq.CLEAN.cd_99.Min200.fasta.eggnog.positive.gtf
-  gtfname: Male_Med.ALL.Clustered.hq.CLEAN.cd_99.Min200.fasta.eggnog.positive.gtf
+  path: resources/isoseq/cyanea_clustered.fasta
+  filename: cyanea_clustered.fasta
+  filestem: cyanea_clustered
+  gtf: cyanea_clustered.fasta.eggnog.positive.gtf
+  gtfname: cyanea_clustered.fasta.eggnog.positive.gtf
