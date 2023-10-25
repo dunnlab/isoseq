@@ -68,19 +68,19 @@ rule gunzip:
     shell:
         """
         dir="resources/sequences"
-        gzfiles=$(find $dir -type f -name '*.gz')
+        gzfiles=`find $dir/* -name '*.gz'`
         for file in $gzfiles; do
-            outname="${file%.gz}"
-            if [ ! -f $outname ]; then
-                gunzip -c $file > $outname
-            fi
+            gunzip -kf $file
         done
-
-        find $dir -type f -name '*.fasta' -exec mv {} $dir \;
-        find $dir -type d -empty -delete
+        fastafiles=`find $dir/* -name '*.fasta'`
+        for file in $fastafiles; do
+            mv $file $dir
+        done
+        subdirs=`ls -d $dir/*/`
+        rm -R $subdirs
 
         cp {input.reference_peptides} {params.copyfile}
-    """
+        """
 
 rule orthofinder:
     """
