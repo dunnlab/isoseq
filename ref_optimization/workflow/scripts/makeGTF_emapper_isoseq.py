@@ -59,8 +59,8 @@ geneListFile = (
 transcriptIDtogeneIDFile = outDir + "/" + filename + ".transcriptID_to_gene.txt"
 geneIDtotranscriptIDFile = outDir + "/" + filename + ".geneID_to_transcript.txt"
 
-searchStr = "(transcript_\d+)"
-protein_searchStr = "((transcript_\d+).p\d+)"
+searchStr = "(transcript/\d+)"
+protein_searchStr = "((transcript/\d+).p\d+)"
 
 with open(transcriptomeFile, "r") as infile:
     with open(geneListFile, "w") as outfile1:
