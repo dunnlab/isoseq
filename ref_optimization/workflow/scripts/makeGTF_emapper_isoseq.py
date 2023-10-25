@@ -21,11 +21,11 @@ import sys
 from Bio import SeqIO
 
 # Path to programs and files
-emapper = "/gpfs/ysm/project/dunn/nnp9/conda_envs/emapper/bin/emapper.py"  # path to eggNOG mapper 2.0.6
+emapper = "/vast/palmer/home.mccleary/cwd7/.conda/envs/isoseq/bin/emapper.py"  # path to eggNOG mapper 2.0.6
 python = (
-    "/gpfs/ysm/project/dunn/nnp9/conda_envs/emapper/bin/python"  # path to python 3.7
+    "/vast/palmer/home.mccleary/cwd7/.conda/envs/isoseq/bin/python"  # path to python 3.7
 )
-gonames_file = "/home/nnp9/local/datasets/go_terms_2019.txt"  # GO Terms IDs and their corresponding names from 2019 GO release
+gonames_file = "resources/go_terms_2019.txt"  # GO Terms IDs and their corresponding names from 2019 GO release
 
 
 # User inputs
