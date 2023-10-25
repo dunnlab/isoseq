@@ -24,8 +24,8 @@ rule all:
         expand("results/reference/treeinform/threshold_{threshold}/{species}.collapsed.fasta.transcripts.fasta", threshold=THRESHOLD_VALS, species=config["species"]),
         expand("results/reference/treeinform/threshold_{threshold}/branch.length.hist_{threshold}.png", threshold=THRESHOLD_VALS),
         expand("results/reference/treeinform/threshold_{threshold}/{transcriptome_name}.eggnog.gtf.selected.gtf", transcriptome_name=config["reference"]["filename"], threshold=THRESHOLD_VALS),
-        expand("results/reference/treeinform/threshold_{threshold}/busco", threshold=THRESHOLD_VALS),
+        expand("results/reference/treeinform/threshold_{threshold}/busco", threshold=THRESHOLD_VALS)
         # expand("results/reference/treeinform/threshold_{threshold}/cellranger/reference", threshold=THRESHOLD_VALS),
         # expand("results/reference/treeinform/threshold_{threshold}/cellranger/{sample}/outs/metrics_summary.csv", threshold=THRESHOLD_VALS, sample=SAMPLE_IDS),
-        "results/reports/busco_duplication_scores.png"
+        #"results/reports/busco_duplication_scores.png"
 
