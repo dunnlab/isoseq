@@ -26,8 +26,8 @@ rule generate_longest_ORFs:
         expand("results/reference/{transcriptome_stem}.transdecoder_dir/longest_orfs.pep", transcriptome_stem=config["reference"]["filestem"])
     params:
         reference=expand("{transcriptome_stem}", transcriptome_stem=config["reference"]["filestem"])
-    conda:
-        "../../workflow/envs/transdecoder.yaml" #transdecoder v5.5.0
+    #conda:
+    #    "../../workflow/envs/transdecoder.yaml" #transdecoder v5.5.0
     shell:
         "TransDecoder.LongOrfs -t {input.transcriptome_path} --output_dir results/reference/{params.reference}.transdecoder_dir"
 
@@ -43,8 +43,8 @@ rule make_GTF:
     params:
         outdir="results/reference",
         script="workflow/scripts/makeGTF_emapper_isoseq.py"
-    conda:
-        "../../workflow/envs/emapper.yaml" #eggnog-mapper=2.0.6, python=3.7.9
+    #conda:
+    #    "../../workflow/envs/emapper.yaml" #eggnog-mapper=2.0.6, python=3.7.9
     shell:
         """
         python {params.script} {input.transcriptome} {input.peptides} {params.outdir}
@@ -90,8 +90,8 @@ rule orthofinder:
         expand("resources/sequences/{species}.pep.fasta", species=targets.index)
     output:
         directory(get_orthofinder_outdir())
-    conda:
-        "../../workflow/envs/orthofinder.yaml"
+    #conda:
+    #    "../../workflow/envs/orthofinder.yaml"
     threads: 20
     shell:
         """

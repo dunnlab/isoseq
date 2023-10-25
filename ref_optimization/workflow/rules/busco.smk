@@ -8,8 +8,8 @@ rule busco_scores:
     output:
         directory("results/reference/treeinform/threshold_{threshold}/busco")
     threads: 20
-    conda:
-        "../envs/busco.yaml" #busco=5.1.3
+    #conda:
+    #    "../envs/busco.yaml" #busco=5.1.3
     params:
         download_path="resources/busco_downloads",
         mode="transcriptome",
