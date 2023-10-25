@@ -70,7 +70,7 @@ rule gunzip:
         dir="resources/sequences"
         gzfiles=`find $dir/* -name '*.gz'`
         for file in $gzfiles; do
-            gunzip $file
+            gunzip -k $file
         done
         fastafiles=`find $dir/* -name '*.fasta'`
         for file in $fastafiles; do
