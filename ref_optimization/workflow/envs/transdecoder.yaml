@@ -26,3 +26,4 @@ dependencies:
   - perl-xsloader=0.24=pl526_0
   - transdecoder=5.5.0=pl526_2
 prefix: /gpfs/ysm/project/dunn/nnp9/conda_envs/transdecoder
+

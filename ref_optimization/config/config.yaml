@@ -1,12 +1,10 @@
-species: Cyanea
+species: Tenrec_ecaudatus
 
 # Path to accession numbers and links for public data download
 targets: config/download_targets.tsv
 
 # Reference before processing:
 reference:
-  path: resources/isoseq/cyanea_clustered.fasta
-  filename: cyanea_clustered.fasta
-  filestem: cyanea_clustered
-  gtf: cyanea_clustered.fasta.eggnog.positive.gtf
-  gtfname: cyanea_clustered.fasta.eggnog.positive.gtf
+  path: resources/isoseq/clustered.hq.fasta
+  filename: clustered.hq.fasta
+  filestem: clustered.hq

@@ -31,6 +31,25 @@ rule generate_longest_ORFs:
     shell:
         "TransDecoder.LongOrfs -t {input.transcriptome_path} --output_dir results/reference/{params.reference}.transdecoder_dir"
 
+rule make_GTF:
+    """
+    Make GTF file with functional annotations using eggnog mapper.
+    """
+    input:
+        transcriptome=expand("{transcriptome}", transcriptome=config["reference"]["path"]),
+        peptides=expand("results/reference/{transcriptome_stem}.transdecoder_dir/longest_orfs.pep", transcriptome_stem=config["reference"]["filestem"])
+    output:
+        expand("results/reference/{transcriptome_name}.eggnog.gtf", transcriptome_name=config["reference"]["filename"])
+    params:
+        outdir="results/reference",
+        script="workflow/scripts/makeGTF_emapper_isoseq.py"
+    conda:
+        "../../workflow/envs/emapper.yaml" #eggnog-mapper=2.0.6, python=3.7.9
+    shell:
+        """
+        python {params.script} {input.transcriptome} {input.peptides} {params.outdir}
+        """
+
 rule gunzip:
     """
     Decompress (if gzipped) protein files downloaded from public databases.
@@ -61,7 +80,6 @@ rule gunzip:
         rm -R $subdirs
 
         cp {input.reference_peptides} {params.copyfile}
-        cp resources/local/Nemopilema_nomurai.pep.fasta resources/sequences/Nemopilema_nomurai.pep.fasta
         """
 
 rule orthofinder:

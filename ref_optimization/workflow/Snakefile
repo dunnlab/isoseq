@@ -4,7 +4,7 @@ min_version("6.4.1")
 
 configfile: "config/config.yaml"
 THRESHOLD_VALS = "0,0.5,1,2,3,4,5,8,10,15,20,25".split(",")
-SAMPLE_IDS = "Podo1,Podo2,Podo3,Podo4,Podo5".split(",")
+SAMPLE_IDS = "Te132_MG,Te134_MG,Te135_MG,Te136_NP".split(",")
 
 # load rules
 include: "rules/data.smk"
@@ -19,11 +19,13 @@ rule all:
     input:
         expand("resources/sequences/{species}.pep.fasta", species=targets.index),
         expand("results/reference/{transcriptome_stem}.transdecoder_dir/longest_orfs.pep", transcriptome_stem=config["reference"]["filestem"]),
+        expand("results/reference/{transcriptome_name}.eggnog.gtf", transcriptome_name=config["reference"]["filename"]),
         get_orthofinder_outdir(),
         expand("results/reference/treeinform/threshold_{threshold}/{species}.collapsed.fasta.transcripts.fasta", threshold=THRESHOLD_VALS, species=config["species"]),
         expand("results/reference/treeinform/threshold_{threshold}/branch.length.hist_{threshold}.png", threshold=THRESHOLD_VALS),
-        expand("results/reference/treeinform/threshold_{threshold}/{original_gtf_name}.selected.gtf", threshold=THRESHOLD_VALS, original_gtf_name=config["reference"]["gtfname"]),
+        expand("results/reference/treeinform/threshold_{threshold}/{transcriptome_name}.eggnog.gtf.selected.gtf", transcriptome_name=config["reference"]["filename"], threshold=THRESHOLD_VALS),
+        expand("results/reference/treeinform/threshold_{threshold}/busco", threshold=THRESHOLD_VALS),
         expand("results/reference/treeinform/threshold_{threshold}/cellranger/reference", threshold=THRESHOLD_VALS),
         expand("results/reference/treeinform/threshold_{threshold}/cellranger/{sample}/outs/metrics_summary.csv", threshold=THRESHOLD_VALS, sample=SAMPLE_IDS),
-        expand("results/reference/treeinform/threshold_{threshold}/busco", threshold=THRESHOLD_VALS),
         "results/reports/busco_duplication_scores.png"
+
