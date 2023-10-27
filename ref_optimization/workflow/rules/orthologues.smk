@@ -82,13 +82,18 @@ rule gunzip:
         """
         dir="resources/sequences"
         gzfiles=`find $dir/* -name '*.gz'`
+
         for file in $gzfiles; do
             gunzip -kf $file
         done
+
         fastafiles=`find $dir/* -name '*.fasta'`
         for file in $fastafiles; do
-            mv $file $dir
+            if [ "$(dirname $file)" != "$dir" ]; then
+                mv $file $dir
+            fi
         done
+        
         subdirs=`ls -d $dir/*/`
         rm -R $subdirs
 
