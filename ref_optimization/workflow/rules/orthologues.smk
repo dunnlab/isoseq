@@ -31,24 +31,37 @@ rule generate_longest_ORFs:
     shell:
         "TransDecoder.LongOrfs -t {input.transcriptome_path} --output_dir results/reference/{params.reference}.transdecoder_dir"
 
+rule run_emapper:
+    input:
+        peptides="results/reference/{transcriptome_stem}.transdecoder_dir/longest_orfs.pep"
+    output:
+        emapper_out="results/reference/{transcriptome_stem}.emapper.annotations"
+    conda:
+        "path/to/emapper_env.yaml"  # specify the path to your conda env file for emapper
+    params:
+        out_prefix="{transcriptome_stem}",
+        out_dir="results/reference",
+        cpu=15
+    shell:
+        """
+        emapper.py -i {input.peptides} -m diamond -o {params.out_prefix} --cpu {params.cpu} --output_dir {params.out_dir}
+        """
+
+
 rule make_GTF:
-    """
-    Make GTF file with functional annotations using eggnog mapper.
-    """
     input:
         transcriptome=expand("{transcriptome}", transcriptome=config["reference"]["path"]),
-        peptides=expand("results/reference/{transcriptome_stem}.transdecoder_dir/longest_orfs.pep", transcriptome_stem=config["reference"]["filestem"])
+        emapper_out="results/reference/{transcriptome_name}.emapper.annotations"
     output:
-        expand("results/reference/{transcriptome_name}.eggnog.gtf", transcriptome_name=config["reference"]["filename"])
+        gtf="results/reference/{transcriptome_name}.eggnog.gtf"
     params:
         outdir="results/reference",
         script="workflow/scripts/makeGTF_emapper_isoseq.py"
-    #conda:
-    #    "../../workflow/envs/emapper.yaml" #eggnog-mapper=2.0.6, python=3.7.9
     shell:
         """
-        python {params.script} {input.transcriptome} {input.peptides} {params.outdir}
+        python {params.script} {input.transcriptome} {input.emapper_out} {params.outdir}
         """
+
 
 rule gunzip:
     """
