@@ -33,7 +33,7 @@ rule generate_longest_ORFs:
 
 rule run_emapper:
     input:
-        peptides="results/reference/{transcriptome_stem}.transdecoder_dir/longest_orfs.pep"
+        peptides=expand("results/reference/{transcriptome_stem}.transdecoder_dir/longest_orfs.pep", transcriptome_stem=config["reference"]["filestem"])
     output:
         emapper_out="results/reference/{transcriptome_stem}.emapper.annotations"
     conda:
