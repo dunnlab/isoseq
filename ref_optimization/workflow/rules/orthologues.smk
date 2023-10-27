@@ -44,7 +44,7 @@ rule run_emapper:
         cpu=15
     shell:
         """
-        emapper.py -i {input.peptides} -m diamond -o {params.out_prefix} --cpu {params.cpu} --output_dir {params.out_dir}
+        emapper.py --resume -i {input.peptides} -m diamond -o {params.out_prefix} --cpu {params.cpu} --output_dir {params.out_dir}
         """
 
 
@@ -93,7 +93,7 @@ rule gunzip:
                 mv $file $dir
             fi
         done
-        
+
         subdirs=`ls -d $dir/*/`
         rm -R $subdirs
 
