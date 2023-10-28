@@ -35,7 +35,8 @@ rule run_emapper:
     input:
         peptides=expand("results/reference/{transcriptome_stem}.transdecoder_dir/longest_orfs.pep", transcriptome_stem=config["reference"]["filestem"])
     output:
-        emapper_out="results/reference/{transcriptome_stem}.emapper.annotations"
+        emapper_out= "results/reference/{transcriptome_stem}.emapper.annotations",
+        emapper_hits="results/reference/{transcriptome_stem}.emapper.annotations.hits"
     conda:
         "path/to/emapper_env.yaml"  # specify the path to your conda env file for emapper
     params:
@@ -46,7 +47,12 @@ rule run_emapper:
         "logs/run_emapper_{transcriptome_stem}.log"
     shell:
         """
-        emapper.py --resume -i {input.peptides} -m diamond -o {params.out_prefix} --cpu {params.cpu} --output_dir {params.out_dir} > {log} 2>&1
+        if [ -f {output.emapper_hits} ]; then
+            RESUME="--resume"
+        else
+            RESUME=""
+        fi
+        emapper.py $RESUME -i {input.peptides} -m diamond -o {params.out_prefix} --cpu {params.cpu} --output_dir {params.out_dir} > {log} 2>&1
         """
 
 
