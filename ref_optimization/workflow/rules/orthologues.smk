@@ -42,9 +42,11 @@ rule run_emapper:
         out_prefix="{transcriptome_stem}",
         out_dir="results/reference",
         cpu=15
+    log:
+        "logs/run_emapper_{transcriptome_stem}.log"
     shell:
         """
-        emapper.py --resume -i {input.peptides} -m diamond -o {params.out_prefix} --cpu {params.cpu} --output_dir {params.out_dir}
+        emapper.py --resume -i {input.peptides} -m diamond -o {params.out_prefix} --cpu {params.cpu} --output_dir {params.out_dir} > {log} 2>&1
         """
 
 
