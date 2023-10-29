@@ -1,8 +1,11 @@
+import sys
+from Bio import SeqIO
+
 configfile: "config.yaml"
 
 rule all:
     input:
-        f"output/{config['reference']['species']}.pep.fasta"
+        f"resources/sequences/{config['reference']['species']}.annotated.pep.fasta"
 
 rule generate_longest_ORFs:
     message: "Generate open reading frames from reference transcriptome."
@@ -16,4 +19,129 @@ rule generate_longest_ORFs:
         """
         TransDecoder.LongOrfs -t {input.transcriptome_path} --output_dir {params.outdir}
         cp {params.outdir}/longest_orfs.pep {output.pep_fasta}
+        """
+
+rule run_emapper:
+    input:
+        pep_fasta="output/{species}.pep.fasta"
+    output:
+        emapper_out= "output/{species}.emapper.annotations",
+        emapper_hits="output/{species}.emapper.annotations.hits"
+    params:
+        out_prefix="{species}",
+        out_dir="output",
+        cpu=15
+    log:
+        "logs/run_emapper_{species}.log"
+    shell:
+        """
+        if [ -f {output.emapper_hits} ]; then
+            RESUME="--resume"
+        else
+            RESUME=""
+        fi
+        emapper.py $RESUME -i {input.peptides} -m diamond -o {params.out_prefix} --cpu {params.cpu} --output_dir {params.out_dir} > {log} 2>&1
+        """
+
+rule update_fasta_headers:
+    input:
+        fasta = "output/{species}.pep.fasta",
+        emapper = "output/{species}.emapper.annotations"
+    output:
+        updated_fasta = "resources/sequences/{species}.annotated.pep.fasta"
+    run:
+        import pandas as pd
+
+        # Function to parse the FASTA file
+        def read_fasta(file_path):
+            with open(file_path, 'r') as f:
+                sequences = {}
+                current_seq = ""
+                current_header = ""
+                for line in f:
+                    line = line.strip()
+                    if line.startswith(">"):
+                        if current_seq:
+                            sequences[current_header] = current_seq
+                        current_header = line
+                        current_seq = ""
+                    else:
+                        current_seq += line
+                if current_seq:
+                    sequences[current_header] = current_seq
+            return sequences
+
+        # Function to parse the eggNOG mapper output
+        def read_emapper(file_path):
+            annotations = pd.read_csv(file_path, sep='\t', comment='#', header=None)
+            annotations = annotations[[0, 5]]
+            annotations.columns = ['id', 'description']
+            annotations_dict = annotations.set_index('id').to_dict()['description']
+            return annotations_dict
+
+        # Read protein sequences and eggNOG annotations
+        sequences = read_fasta(input.fasta)
+        annotations = read_emapper(input.emapper)
+
+        # Update FASTA headers
+        with open(output.updated_fasta, 'w') as f:
+            for header, sequence in sequences.items():
+                id = header.split()[0][1:]
+                if id in annotations:
+                    f.write(header + " " + annotations[id] + "\n")
+                else:
+                    f.write(header + "\n")
+                f.write(sequence + "\n")
+
+
+def get_orthofinder_outdir():
+    """
+    Generate path to orthofinder gene trees folder with current date as written by orthofinder
+    """
+    ortho_dir='results/orthofinder'
+    if os.path.exists(ortho_dir):
+        for results_folder in os.listdir(ortho_dir):
+            results_path=f"results/orthofinder/{results_folder}/Gene_Trees"
+            return results_path
+    else:
+        today = date.today()
+        monthDay = today.strftime("%b%d")
+        outdir= f"results/orthofinder/Results_{monthDay}/Gene_Trees"
+        return outdir
+
+rule orthofinder:
+    """
+    Infer gene trees from set of protein sequences downloaded from public databases.
+    """
+    input:
+        "resources/sequences/{species}.annotated.pep.fasta"
+    output:
+        directory(get_orthofinder_outdir())
+	log:
+        "logs/run_orthofinder_{species}.log"
+    threads: workflow.cores
+    shell:
+        """
+        rm -rf results/orthofinder
+        orthofinder -t {threads} -f resources/sequences -o results/orthofinder > {log} 2>&1
+        """
+
+rule collapse_with_treeinform:
+    """
+    Generate a collapsed protein file based on gene trees and threshold
+    of branch lengths for collapsing sequences. If sequences are connected by branches
+    with length less than threshold, keep the longest sequence variant.
+    """
+    input:
+        gene_trees=get_orthofinder_outdir(),
+		updated_fasta = "resources/sequences/{species}.annotated.pep.fasta"
+    output:
+        collapsed_proteins=expand("output/treeinform/threshold_{{threshold}}/{species}.collapsed.fasta", species=config["species"])
+    params:
+        sp={species},
+        outdir="results/reference/treeinform/threshold_{threshold}"
+    shell:
+        """
+        mkdir {params.outdir}
+        python scripts/treeinform_collapse.py -s {input.updated_fasta} -gt {input.gene_trees} -t {wildcards.threshold} -sp {params.sp} -o {params.outdir}
         """

@@ -37,8 +37,6 @@ rule run_emapper:
     output:
         emapper_out= "results/reference/{transcriptome_stem}.emapper.annotations",
         emapper_hits="results/reference/{transcriptome_stem}.emapper.annotations.hits"
-    conda:
-        "path/to/emapper_env.yaml"  # specify the path to your conda env file for emapper
     params:
         out_prefix="{transcriptome_stem}",
         out_dir="results/reference",
