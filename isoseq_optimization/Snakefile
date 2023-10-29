@@ -24,7 +24,9 @@ rule generate_longest_ORFs:
     shell:
         """
         TransDecoder.LongOrfs -t {input.transcriptome_path} --output_dir {params.outdir} > {log} 2>&1
-        cp {params.outdir}/longest_orfs.pep {output.pep_fasta}
+
+		transcriptome_base=$(basename "$file_path")
+        cp {params.outdir}/${{transcriptome_base}}.transdecoder_dir/longest_orfs.pep {output.pep_fasta}
         """
 
 rule run_emapper:
