@@ -104,14 +104,14 @@ rule orthofinder:
     input:
         "resources/sequences/{species}.annotated.pep.fasta"
     output:
-        directory("output/orthofinder/Gene_Trees/")
+        directory("output/orthofinder/{species}/Gene_Trees/")
     log:
         "logs/run_orthofinder_{species}.log"
     threads: workflow.cores
     shell:
         """
-        rm -rf results/orthofinder
-        orthofinder -t {threads} -f resources/sequences -o results/orthofinder > {log} 2>&1
+        rm -rf results/orthofinder/{wildcards.species}
+        orthofinder -t {threads} -f resources/sequences -o results/orthofinder/{wildcards.species} > {log} 2>&1
         """
 
 rule collapse_with_treeinform:
