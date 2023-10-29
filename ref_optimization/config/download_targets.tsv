@@ -22,4 +22,4 @@ Hydractinia_echinata	other_gz	peptides	https://research.nhgri.nih.gov/hydractini
 Nematostella_vectensis	other	peptides	https://genomes.stowers.org/files/pub/nematostella/Nvec/genomes/Nvec200/aligned/tcs_v2/tcs_v2.20211013.protein.versioned.fasta	tcs_v2.20211013.protein.versioned.fasta
 Rhopilema_esculentum	other	peptides	https://ftp.cngb.org/pub/gigadb/pub/10.5524/100001_101000/100720/pep.fasta	pep.fasta
 Clytia_hemisphaerica	other	peptides	http://marimba.obs-vlfr.fr/sites/default/files/download/full_nr_align.fasta	full_nr_align.fasta
-Nemopilema_nomurai	local	peptides	resources/local/Nemopilema_nomurai.pep.fasta	original:NNO.final_gene_set.pep.fa
+Nemopilema_nomurai	local	peptides	resources/local/Nemopilema_nomurai.pep.fasta	Nemopilema_nomurai.pep.fasta

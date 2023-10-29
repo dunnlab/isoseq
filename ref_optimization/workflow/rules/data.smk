@@ -12,6 +12,12 @@ other_targets = targets.loc[lambda targets: targets['source'] == "other"]
 other_gz_targets = targets.loc[lambda targets: targets['source'] == "other_gz"]
 gdrive_targets = targets.loc[lambda targets: targets['source'] == "gdrive"]
 
+# Get a concatenated list of all species from above targets
+gz_targets = pd.concat([ensembl_targets, ensemblgenomes_targets, other_targets, other_gz_targets, gdrive_targets], axis=0, sort=False)
+
+
+local_targets = targets.loc[lambda targets: targets['source'] == "local"]
+
 def get_sequence(wildcards, type):
     """
     Return path for downloading sequence file.

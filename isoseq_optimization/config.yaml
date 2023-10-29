@@ -1,0 +1,8 @@
+# Path to accession numbers and links for public data download
+targets:
+  path: resources/sequences
+
+
+reference:
+  species: Cyanea_sp
+  path: resources/isoseq/cyanea_clustered.fasta
