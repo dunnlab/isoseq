@@ -1,8 +1,11 @@
-# Path to accession numbers and links for public data download
-targets:
-  path: resources/sequences
-
-
+# The isoseq reference under investigation
 reference:
   species: Cyanea_sp
   path: resources/isoseq/cyanea_clustered.fasta
+
+
+# Path to directory containing data for all the other species
+others:
+  path: resources/sequences
+
+

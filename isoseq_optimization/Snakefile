@@ -1,2 +1,19 @@
 configfile: "config.yaml"
 
+rule all:
+    input:
+        f"output/{config['reference']['species']}.pep.fasta"
+
+rule generate_longest_ORFs:
+    message: "Generate open reading frames from reference transcriptome."
+    input:
+        transcriptome_path = config["reference"]["path"]
+    output:
+        pep_fasta="output/{species}.pep.fasta"
+    params:
+        outdir = "output/{species}.transdecoder"
+    shell:
+        """
+        TransDecoder.LongOrfs -t {input.transcriptome_path} --output_dir {params.outdir}
+        cp {params.outdir}/longest_orfs.pep {output.pep_fasta}
+        """
