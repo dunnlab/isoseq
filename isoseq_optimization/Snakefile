@@ -1,11 +1,15 @@
 import sys
+import os
+from datetime import date
 from Bio import SeqIO
 
 configfile: "config.yaml"
 
 rule all:
     input:
-        f"resources/sequences/{config['reference']['species']}.annotated.pep.fasta"
+        expand("output/treeinform/threshold_{threshold}/{species}.collapsed.fasta", 
+               threshold=config['thresholds'], 
+               species=config['reference']['species'])
 
 rule generate_longest_ORFs:
     message: "Generate open reading frames from reference transcriptome."
@@ -40,7 +44,7 @@ rule run_emapper:
         else
             RESUME=""
         fi
-        emapper.py $RESUME -i {input.peptides} -m diamond -o {params.out_prefix} --cpu {params.cpu} --output_dir {params.out_dir} > {log} 2>&1
+        emapper.py $RESUME -i {input.pep_fasta} -m diamond -o {params.out_prefix} --cpu {params.cpu} --output_dir {params.out_dir} > {log} 2>&1
         """
 
 rule update_fasta_headers:
@@ -93,22 +97,6 @@ rule update_fasta_headers:
                     f.write(header + "\n")
                 f.write(sequence + "\n")
 
-
-def get_orthofinder_outdir():
-    """
-    Generate path to orthofinder gene trees folder with current date as written by orthofinder
-    """
-    ortho_dir='results/orthofinder'
-    if os.path.exists(ortho_dir):
-        for results_folder in os.listdir(ortho_dir):
-            results_path=f"results/orthofinder/{results_folder}/Gene_Trees"
-            return results_path
-    else:
-        today = date.today()
-        monthDay = today.strftime("%b%d")
-        outdir= f"results/orthofinder/Results_{monthDay}/Gene_Trees"
-        return outdir
-
 rule orthofinder:
     """
     Infer gene trees from set of protein sequences downloaded from public databases.
@@ -116,8 +104,8 @@ rule orthofinder:
     input:
         "resources/sequences/{species}.annotated.pep.fasta"
     output:
-        directory(get_orthofinder_outdir())
-	log:
+        directory("output/orthofinder/Gene_Trees/")
+    log:
         "logs/run_orthofinder_{species}.log"
     threads: workflow.cores
     shell:
@@ -133,15 +121,16 @@ rule collapse_with_treeinform:
     with length less than threshold, keep the longest sequence variant.
     """
     input:
-        gene_trees=get_orthofinder_outdir(),
-		updated_fasta = "resources/sequences/{species}.annotated.pep.fasta"
+        gene_trees=directory("output/orthofinder/Gene_Trees/"),
+        updated_fasta="resources/sequences/{species}.annotated.pep.fasta"
     output:
-        collapsed_proteins=expand("output/treeinform/threshold_{{threshold}}/{species}.collapsed.fasta", species=config["species"])
+        collapsed_proteins="output/treeinform/threshold_{threshold}/{species}.collapsed.fasta"
     params:
-        sp={species},
-        outdir="results/reference/treeinform/threshold_{threshold}"
+        sp="{species}",
+        outdir="output/treeinform/threshold_{threshold}",
+        threshold="{threshold}"
     shell:
         """
-        mkdir {params.outdir}
-        python scripts/treeinform_collapse.py -s {input.updated_fasta} -gt {input.gene_trees} -t {wildcards.threshold} -sp {params.sp} -o {params.outdir}
+        mkdir -p {params.outdir}
+        python scripts/treeinform_collapse.py -s {input.updated_fasta} -gt {input.gene_trees} -t {params.threshold} -sp {params.sp} -o {params.outdir}
         """
