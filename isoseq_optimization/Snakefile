@@ -37,8 +37,8 @@ rule run_emapper:
         emapper_hits="output/{species}.emapper.annotations.hits"
     params:
         out_prefix="{species}",
-        out_dir="output",
-        cpu=15
+        out_dir="output"
+	threads: workflow.cores
     log:
         "logs/run_emapper_{species}.log"
     shell:
@@ -48,7 +48,7 @@ rule run_emapper:
         else
             RESUME=""
         fi
-        emapper.py $RESUME -i {input.pep_fasta} -m diamond -o {params.out_prefix} --cpu {params.cpu} --output_dir {params.out_dir} > {log} 2>&1
+        emapper.py $RESUME -i {input.pep_fasta} -m diamond -o {params.out_prefix} --cpu {threads} --output_dir {params.out_dir} > {log} 2>&1
         """
 
 rule update_fasta_headers:
