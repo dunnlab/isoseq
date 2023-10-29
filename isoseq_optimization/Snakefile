@@ -120,7 +120,7 @@ rule orthofinder:
 
 rule collapse_with_treeinform:
     input:
-        gene_trees=directory("output/orthofinder/{species}/Gene_Trees/"),
+        gene_trees="output/orthofinder/{species}/Gene_Trees/",
         updated_fasta="resources/sequences/{species}.annotated.pep.fasta"
     output:
         collapsed_proteins="output/treeinform/threshold_{threshold}/{species}.collapsed.fasta"
