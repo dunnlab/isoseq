@@ -115,22 +115,18 @@ rule orthofinder:
         """
 
 rule collapse_with_treeinform:
-    """
-    Generate a collapsed protein file based on gene trees and threshold
-    of branch lengths for collapsing sequences. If sequences are connected by branches
-    with length less than threshold, keep the longest sequence variant.
-    """
     input:
-        gene_trees=directory("output/orthofinder/Gene_Trees/"),
+        gene_trees=directory("output/orthofinder/{species}/Gene_Trees/"),
         updated_fasta="resources/sequences/{species}.annotated.pep.fasta"
     output:
         collapsed_proteins="output/treeinform/threshold_{threshold}/{species}.collapsed.fasta"
     params:
         sp="{species}",
-        outdir="output/treeinform/threshold_{threshold}",
+        outdir="output/treeinform/threshold_{threshold}/{species}",
         threshold="{threshold}"
     shell:
         """
         mkdir -p {params.outdir}
         python scripts/treeinform_collapse.py -s {input.updated_fasta} -gt {input.gene_trees} -t {params.threshold} -sp {params.sp} -o {params.outdir}
         """
+
