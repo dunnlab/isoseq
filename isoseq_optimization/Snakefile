@@ -38,7 +38,7 @@ rule run_emapper:
     params:
         out_prefix="{species}",
         out_dir="output"
-	threads: workflow.cores
+    threads: workflow.cores
     log:
         "logs/run_emapper_{species}.log"
     shell:
