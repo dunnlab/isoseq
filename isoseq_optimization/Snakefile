@@ -19,9 +19,11 @@ rule generate_longest_ORFs:
         pep_fasta="output/{species}.pep.fasta"
     params:
         outdir = "output/{species}.transdecoder"
+	log:
+        "logs/transdecoder_{species}.log"
     shell:
         """
-        TransDecoder.LongOrfs -t {input.transcriptome_path} --output_dir {params.outdir}
+        TransDecoder.LongOrfs -t {input.transcriptome_path} --output_dir {params.outdir} > {log} 2>&1
         cp {params.outdir}/longest_orfs.pep {output.pep_fasta}
         """
 
