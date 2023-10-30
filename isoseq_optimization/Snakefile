@@ -141,7 +141,7 @@ rule busco_scores:
     params:
         mode="transcriptome",
         lineage="metazoa_odb10",
-        filename=expand("{species}.collapsed.fasta.transcripts.fasta", species=config["species"])
+        filename=expand("{species}.collapsed.fasta.transcripts.fasta", species=config['reference']['species'])
     shell:
         """
 		busco -i {input} -o {params.filename} --force --out_path {output} -l {params.lineage} -m {params.mode} --offline --download_path {config.busco} -c {threads}
