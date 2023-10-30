@@ -76,7 +76,7 @@ rule update_fasta_headers:
         # Function to parse the eggNOG mapper output
         def read_emapper(file_path):
             annotations = pd.read_csv(file_path, sep='\t', comment='#', header=None)
-            annotations = annotations[[0, 5]]
+            annotations = annotations[[0, 7]]
             annotations.columns = ['id', 'description']
             annotations_dict = annotations.set_index('id').to_dict()['description']
             return annotations_dict
