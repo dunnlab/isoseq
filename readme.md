@@ -6,7 +6,7 @@ Adapted from the excellent workflow developed by Natasha Picciani at https://git
 
 To create a conda environment to run this workflow:
 
-    conda create -y -n isoseq -c bioconda -c conda-forge snakemake busco transdecoder orthofinder pandas biopython seaborn matplotlib ete3 graphviz eggnog-mapper
+    conda create -y -n isoseq -c bioconda -c conda-forge -c anaconda scipy snakemake busco transdecoder orthofinder pandas biopython seaborn matplotlib ete3 graphviz eggnog-mapper
 
 From the `ref_optimization` directory, do a dry run with:
 
