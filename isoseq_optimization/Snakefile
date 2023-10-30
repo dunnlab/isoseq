@@ -152,8 +152,8 @@ rule plot_QC:
     Plot BUSCO scores, cellranger metrics, and number of transcripts in collapsed transcriptome files
     """
     input:
-        expand("results/reference/treeinform/threshold_{threshold}/{species}.collapsed.fasta.transcripts.fasta", species=config["species"], threshold=THRESHOLD_VALS),
-        expand("results/reference/treeinform/threshold_{threshold}/busco", threshold=THRESHOLD_VALS),
+        expand("results/reference/treeinform/threshold_{threshold}/{species}.collapsed.fasta.transcripts.fasta", species=config['reference']['species'], threshold=THRESHOLD_VALS),
+        expand("results/reference/treeinform/threshold_{threshold}/busco", threshold=config['thresholds']),
         expand("results/reference/treeinform/threshold_{threshold}/cellranger/{sample}/outs/metrics_summary.csv", sample=SAMPLE_IDS, threshold=THRESHOLD_VALS)
     output:
         "results/reports/busco_duplication_scores.png",
