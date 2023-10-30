@@ -108,6 +108,7 @@ rule orthofinder:
     threads: workflow.cores
     shell:
         """
+		mkdir -p results/orthofinder
         rm -rf results/orthofinder/{wildcards.species}
         orthofinder -t {threads} -f resources/sequences -o results/orthofinder/{wildcards.species} > {log} 2>&1
         """
