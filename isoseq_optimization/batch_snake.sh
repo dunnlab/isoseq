@@ -9,4 +9,5 @@
 #SBATCH --mem-per-cpu=10G            # shared memory, scaling with CPU request
 
 module load miniconda
+conda activate isoseq
 snakemake --cores $SLURM_CPUS_PER_TASK
