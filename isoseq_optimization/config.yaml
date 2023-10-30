@@ -5,9 +5,11 @@ reference:
 
 thresholds: [0,0.5,1,2,3,4,5,8,10,15,20,25]
 
-
 # Path to directory containing data for all the other species
 others:
   path: resources/sequences
 
+# Databases
+
+busco: /gpfs/gibbs/data/db/busco
 
