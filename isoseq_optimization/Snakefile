@@ -5,14 +5,18 @@ from Bio import SeqIO
 
 configfile: "config.yaml"
 
+print(config['thresholds'])
+print(config['reference']['species'])
+
 rule all:
     input:
         expand("output/treeinform/threshold_{threshold}/{species}/{species}.collapsed.fasta", 
                threshold=config['thresholds'], 
                species=config['reference']['species']) +
-        expand("output/treeinform/threshold_{threshold}/busco/{species}.collapsed.fasta.transcripts.fasta",
+        expand("output/busco_threshold_{threshold}_{species}/short_summary.specific.metazoa_odb10.busco_threshold_{threshold}_{species}.txt",
                threshold=config['thresholds'], 
                species=config['reference']['species'])
+
 
 rule generate_longest_ORFs:
     message: "Generate open reading frames from reference transcriptome."
@@ -143,13 +147,15 @@ rule busco_scores:
     input:
         "output/treeinform/threshold_{threshold}/{species}/{species}.collapsed.fasta"
     output:
-        directory("output/treeinform/threshold_{threshold}/busco/{species}")
+        "output/busco_threshold_{threshold}_{species}/short_summary.specific.metazoa_odb10.busco_threshold_{threshold}_{species}.txt"
+    wildcard_constraints:
+        threshold="\d+(\.\d+)?"
     threads: workflow.cores
     params:
         mode="transcriptome",
         lineage="/gpfs/gibbs/data/db/busco/metazoa_odb10",
-        filename="{species}"
+        filename="busco_threshold_{threshold}_{species}"
     shell:
         """
-		busco -i {input} -o {params.filename} --force --out_path {output} -l {params.lineage} -m {params.mode} -c {threads}
-		"""
+        busco -i {input} -o {params.filename} --force --out_path output/ -l {params.lineage} -m {params.mode} -c {threads}
+        """
