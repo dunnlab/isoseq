@@ -201,34 +201,44 @@ def export_variants(candidate_variants, species_of_interest, outdir):
 
 
 def main(args):
-
     protein_file = args.s
     gene_trees_folder = args.gt
     outdir_name = args.o
     threshold_value = float(args.t)
     species_of_interest = args.sp
 
+    print("Loading gene trees...")
     trees = load_trees(gene_trees_folder)
-    candidate_variants = identify_candidate_variants(
-        trees, threshold_value, species_of_interest
-    )
-    export_variants(candidate_variants, species_of_interest, outdir_name)
-    new_protein_lengths = fix_special_characters(
-        create_protein_length_dictionary(protein_file)
-    )
-    selected_variants = retrieve_longest_variant(
-        candidate_variants, new_protein_lengths
-    )
-    final_sequences = filter_sequences(
-        candidate_variants, selected_variants, protein_file
-    )
+    print(f"{len(trees)} gene trees loaded.")
 
-    # export fasta file after filtering sequences
+    print("Identifying candidate variants...")
+    candidate_variants = identify_candidate_variants(trees, threshold_value, species_of_interest)
+    print(f"{len(candidate_variants)} sets of candidate variants identified.")
+
+    print("Exporting candidate variants...")
+    export_variants(candidate_variants, species_of_interest, outdir_name)
+    print(f"Candidate variants exported to {outdir_name}/{species_of_interest}.variants.csv")
+
+    print("Creating protein length dictionary...")
+    new_protein_lengths = fix_special_characters(create_protein_length_dictionary(protein_file))
+    print("Protein length dictionary created and special characters fixed.")
+
+    print("Retrieving longest variants...")
+    selected_variants = retrieve_longest_variant(candidate_variants, new_protein_lengths)
+    print(f"{len(selected_variants)} longest variants retrieved.")
+
+    print("Filtering sequences...")
+    final_sequences = filter_sequences(candidate_variants, selected_variants, protein_file)
+    print(f"{len(final_sequences)} sequences retained after filtering.")
+
+    print("Exporting final sequences...")
     outfile2 = f"{outdir_name}/{species_of_interest}.collapsed.fasta"
     with open(outfile2, "w") as out2:
         for sequence in final_sequences:
             SeqIO.write(sequence, out2, "fasta")
+    print(f"Final sequences exported to {outfile2}")
 
+    print("Process completed successfully!")
 
 if __name__ == "__main__":
 

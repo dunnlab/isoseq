@@ -10,7 +10,7 @@ print(config['reference']['species'])
 
 rule all:
     input:
-        expand("output/treeinform/threshold_{threshold}/{species}/{species}.collapsed.fasta", 
+        expand("output/treeinform/threshold_{threshold}/{species}/{species}_annotated.collapsed.fasta", 
                threshold=config['thresholds'], 
                species=config['reference']['species']) +
         expand("output/busco_threshold_{threshold}_{species}/short_summary.specific.metazoa_odb10.busco_threshold_{threshold}_{species}.txt",
@@ -130,13 +130,17 @@ rule collapse_with_treeinform:
         gene_trees="output/orthofinder/{species}/Gene_Trees/",
         updated_fasta="resources/sequences/{species}.annotated.pep.fasta"
     output:
-        collapsed_proteins="output/treeinform/threshold_{threshold}/{species}/{species}.collapsed.fasta"
+        collapsed_proteins="output/treeinform/threshold_{threshold}/{species}/{species}_annotated.collapsed.fasta"
     params:
         outdir="output/treeinform/threshold_{threshold}/{species}"
+    log:
+        "logs/treeprune_{species}_{threshold}.log"
     shell:
         """
         mkdir -p {params.outdir}
-        python scripts/treeinform_collapse.py -s {input.updated_fasta} -gt {input.gene_trees} -t {wildcards.threshold} -sp {wildcards.species} -o {params.outdir}
+
+        # Need to add _annotated to species since this is added to the filename in rule update_fasta_headers  
+        python scripts/treeinform_collapse.py -s {input.updated_fasta} -gt {input.gene_trees} -t {wildcards.threshold} -sp {wildcards.species}_annotated -o {params.outdir} > {log} 2>&1
         """
 
 rule busco_scores:
@@ -145,7 +149,7 @@ rule busco_scores:
     with BUSCO 
     """
     input:
-        "output/treeinform/threshold_{threshold}/{species}/{species}.collapsed.fasta"
+        "output/treeinform/threshold_{threshold}/{species}/{species}_annotated.collapsed.fasta"
     output:
         "output/busco_threshold_{threshold}_{species}/short_summary.specific.metazoa_odb10.busco_threshold_{threshold}_{species}.txt"
     wildcard_constraints:
