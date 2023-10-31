@@ -123,15 +123,13 @@ rule collapse_with_treeinform:
         gene_trees="output/orthofinder/{species}/Gene_Trees/",
         updated_fasta="resources/sequences/{species}.annotated.pep.fasta"
     output:
-        collapsed_proteins="output/treeinform/threshold_{threshold}/{species}.collapsed.fasta"
+        collapsed_proteins="output/treeinform/threshold_{threshold}/{species}/{species}.collapsed.fasta"
     params:
-        sp="{species}",
-        outdir="output/treeinform/threshold_{threshold}/{species}",
-        threshold="{threshold}"
+        outdir="output/treeinform/threshold_{threshold}/{species}"
     shell:
         """
         mkdir -p {params.outdir}
-        python scripts/treeinform_collapse.py -s {input.updated_fasta} -gt {input.gene_trees} -t {params.threshold} -sp {params.sp} -o {params.outdir}
+        python scripts/treeinform_collapse.py -s {input.updated_fasta} -gt {input.gene_trees} -t {wildcards.threshold} -sp {wildcards.species} -o {params.outdir}
         """
 
 rule busco_scores:
