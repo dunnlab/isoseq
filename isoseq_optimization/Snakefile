@@ -108,12 +108,14 @@ rule orthofinder:
     threads: workflow.cores
     shell:
         """
-		mkdir -p results/orthofinder
-        rm -rf results/orthofinder/{wildcards.species}
-
-        # Need to run orthofinder with the python from the active conda environment
-        of=$(which orthofinder)
-        python $of -t {threads} -f resources/sequences -o results/orthofinder/{wildcards.species} > {log} 2>&1
+        mkdir -p output/orthofinder
+        rm -rf output/orthofinder/{wildcards.species}
+        
+        orthofinder -t {threads} -f resources/sequences -o output/orthofinder/{wildcards.species} > {log} 2>&1
+        
+        # Copy the Gene_Trees to a location that does not depend on the date
+        mkdir -p output/orthofinder/{wildcards.species}/Gene_Trees
+        cp output/orthofinder/{wildcards.species}/Results_*/Gene_Trees/* output/orthofinder/{wildcards.species}/Gene_Trees/
         """
 
 rule collapse_with_treeinform:
