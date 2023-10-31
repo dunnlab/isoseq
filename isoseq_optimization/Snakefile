@@ -148,7 +148,7 @@ rule busco_scores:
     params:
         mode="transcriptome",
         lineage="/gpfs/gibbs/data/db/busco/metazoa_odb10",
-        filename="{species}.collapsed.fasta.transcripts"
+        filename="{species}"
     shell:
         """
 		busco -i {input} -o {params.filename} --force --out_path {output} -l {params.lineage} -m {params.mode} -c {threads}
