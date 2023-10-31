@@ -9,6 +9,9 @@ rule all:
     input:
         expand("output/treeinform/threshold_{threshold}/{species}/{species}.collapsed.fasta", 
                threshold=config['thresholds'], 
+               species=config['reference']['species']),
+		expand("output/treeinform/threshold_{threshold}/busco/{species}.collapsed.fasta.transcripts.fasta",
+               threshold=config['thresholds'], 
                species=config['reference']['species'])
 
 rule generate_longest_ORFs:
@@ -138,15 +141,15 @@ rule busco_scores:
     with BUSCO 
     """
     input:
-        "output/treeinform/threshold_{threshold}/{species}.collapsed.fasta"
+        "output/treeinform/threshold_{threshold}/{species}/{species}.collapsed.fasta"
     output:
-        directory("output/treeinform/threshold_{threshold}/busco")
+        directory("output/treeinform/threshold_{threshold}/busco/{species}")
     threads: workflow.cores
     params:
         mode="transcriptome",
-        lineage="metazoa_odb10",
-        filename=expand("{species}.collapsed.fasta.transcripts.fasta", species=config['reference']['species'])
+        lineage="/gpfs/gibbs/data/db/busco/metazoa_odb10",
+        filename="{species}.collapsed.fasta.transcripts"
     shell:
         """
-		busco -i {input} -o {params.filename} --force --out_path {output} -l {params.lineage} -m {params.mode} --offline --download_path {config.busco} -c {threads}
+		busco -i {input} -o {params.filename} --force --out_path {output} -l {params.lineage} -m {params.mode} -c {threads}
 		"""
