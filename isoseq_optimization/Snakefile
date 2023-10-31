@@ -9,7 +9,7 @@ rule all:
     input:
         expand("output/treeinform/threshold_{threshold}/{species}/{species}.collapsed.fasta", 
                threshold=config['thresholds'], 
-               species=config['reference']['species']),
+               species=config['reference']['species']) +
 		expand("output/treeinform/threshold_{threshold}/busco/{species}.collapsed.fasta.transcripts.fasta",
                threshold=config['thresholds'], 
                species=config['reference']['species'])
