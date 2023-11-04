@@ -128,7 +128,7 @@ rule orthofinder:
 rule collapse_with_treeinform:
     input:
         gene_trees="output/orthofinder/{species}/Gene_Trees/",
-        updated_fasta="resources/sequences/{species}.annotated.pep.fasta"
+        fasta="resources/sequences/{species}.annotated.pep.fasta"
     output:
         collapsed_proteins="output/treeinform/threshold_{threshold}/{species}/{species}_annotated.collapsed.fasta"
     params:
@@ -140,7 +140,7 @@ rule collapse_with_treeinform:
         mkdir -p {params.outdir}
 
         # Need to add _annotated to species since this is added to the filename in rule update_fasta_headers  
-        python scripts/treeinform_collapse.py -s {input.updated_fasta} -gt {input.gene_trees} -t {wildcards.threshold} -sp {wildcards.species}_annotated -o {params.outdir} > {log} 2>&1
+        python scripts/treeinform_collapse.py -s {input.fasta} -gt {input.gene_trees} -t {wildcards.threshold} -sp {wildcards.species}_annotated -o {params.outdir} > {log} 2>&1
         """
 
 rule busco_scores:
@@ -156,7 +156,7 @@ rule busco_scores:
         threshold="\d+(\.\d+)?"
     threads: workflow.cores
     params:
-        mode="transcriptome",
+        mode="protein",
         lineage="/gpfs/gibbs/data/db/busco/metazoa_odb10",
         filename="busco_threshold_{threshold}_{species}"
     shell:

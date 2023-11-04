@@ -8,7 +8,7 @@ from Bio import SeqIO
 import matplotlib.pyplot as plt
 
 
-def load_trees(gene_trees_folder):
+def get_trees_paths(gene_trees_folder):
     """
     Load tree paths from folder with gene trees.
     Returns a list with paths to each gene tree.
@@ -96,6 +96,33 @@ def identify_candidate_variants(newicks, threshold, species_of_interest):
                     candidates_specific.append(candidates[species_of_interest])
     return candidates_specific
 
+
+def gather_tips_from_trees(newicks, species_of_interest):
+    """
+    Gathers all tips from the provided trees that belong to the species of interest.
+
+    Args:
+    -- newicks: list containing the absolute paths to tree files.
+    -- species_of_interest: species considered for retrieving gene variants.
+
+    Returns a set of sequence identifiers.
+    """
+    n = 0
+    tips = set()
+    for newick in newicks:
+        tree = ete3.Tree(newick)
+        for leaf in tree.iter_leaves():
+            species, _, transcript_id = leaf.name.partition('_pep_')
+            if species == species_of_interest:
+                # Extract the part after "transcript/"
+                tip_id = transcript_id.split("transcript/")[-1]
+                # Remove any trailing information after a space, if present
+                tip_id = tip_id.split()[0]
+                tips.add(tip_id)
+                if n < 5:
+                    print(f"tip id: {tip_id}")
+                n = n + 1
+    return tips
 
 def create_protein_length_dictionary(peptides):
     """
@@ -207,9 +234,9 @@ def main(args):
     threshold_value = float(args.t)
     species_of_interest = args.sp
 
-    print("Loading gene trees...")
-    trees = load_trees(gene_trees_folder)
-    print(f"{len(trees)} gene trees loaded.")
+    print("Getting tree paths...")
+    trees = get_trees_paths(gene_trees_folder)
+    print(f"{len(trees)} trees found.")
 
     print("Identifying candidate variants...")
     candidate_variants = identify_candidate_variants(trees, threshold_value, species_of_interest)
@@ -237,6 +264,31 @@ def main(args):
         for sequence in final_sequences:
             SeqIO.write(sequence, out2, "fasta")
     print(f"Final sequences exported to {outfile2}")
+
+    print("Gathering tips from trees...")
+    tips_from_trees = gather_tips_from_trees(trees, species_of_interest)
+    print(f"Gathered {len(tips_from_trees)} tips from trees.")
+
+    print("Exporting strict sequences...")
+    strict_outfile = f"{outdir_name}/{species_of_interest}.strict.fasta"
+    with open(strict_outfile, "w") as strict_out:
+        n = 0
+        for sequence in final_sequences:
+            # get the protein id from the header. For example, if header is:
+            #   >transcript/8372.p3 type:3prime_partial gc:universal transcript/8372:2052-2594(+)
+            # then get 8372.p3
+            header = sequence.id
+            first_part = header.split()[0]
+            # Further split by '/' and take the second part
+            protein_id = first_part.split('/')[-1]
+
+            if n < 5:
+                print(f"protein id: {protein_id}")
+            n = n + 1
+
+            if protein_id in tips_from_trees:
+                SeqIO.write(sequence, strict_out, "fasta")
+    print(f"Strict sequences exported to {strict_outfile}")
 
     print("Process completed successfully!")
 
