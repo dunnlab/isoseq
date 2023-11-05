@@ -177,6 +177,7 @@ rule proteins_to_transcripts:
 
             proteins = {}
             annotations = {}
+            n = 0
             with open(protein_file) as input_prot_seqs:
                 for record in SeqIO.parse(input_prot_seqs, "fasta"):
                     match = re.search(r'transcript/(\d+)', record.id)
@@ -184,21 +185,40 @@ rule proteins_to_transcripts:
                         index = match.group(1)
                         proteins[index] = record
                         
-                        match_annotation = re.search(r'\) (.+)', record.id)
+                        match_annotation = re.search(r'\([+-]\) (.+)', record.description)
                         annotations[index] = match_annotation.group(1) if match_annotation else ''
+
+                        # Print first few for debugging:
+                        if n < 0:
+                            print(f"index: {index}")
+                            print(f"  id: {record.id}")
+                            print(f"  description: {record.description}")
+                            print(f"  annotation: {annotations[index]}")
+                        n = n + 1
+
                     else:
                         raise ValueError(f"No match found for the transcript index in the protein ID: {record.id}")
+                    
+                    
 
+            print(f"Number of annotations for {protein_file}: {len(annotations)}")
+            n = 0
             with open(out_file, 'w') as output_seqs:
                 for index in proteins.keys():
                     if index not in transcripts:
                         raise ValueError(f"Protein index {index} not found in transcripts.")
                     
                     transcript_record = transcripts[index]
-                    annotated_header = f"{transcript_record.description} {annotations[index]}"
-                    transcript_record.description = annotated_header
-                    transcript_record.id = f"{transcript_record.id} {annotations[index]}"
+                    transcript_record.description = f"{transcript_record.description} {annotations[index]}"
+                    #transcript_record.id = f"{transcript_record.id} {annotations[index]}"
                     SeqIO.write(transcript_record, output_seqs, "fasta")
+                    # print first few records for debugging
+                    if (n < 0):
+                        print(f"index: {index}")
+                        print(f"   annotation: {annotations[index]}")
+                        print(f"   id: {transcript_record.id}")
+                        print(f"   description: {transcript_record.description}")
+                    n = n + 1
 
         proteins_to_transcripts(input.proteins, input.transcriptome, output.transcripts)
 
