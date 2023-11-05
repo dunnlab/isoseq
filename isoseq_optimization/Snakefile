@@ -2,11 +2,12 @@ import sys
 import os
 from datetime import date
 from Bio import SeqIO
+import pandas as pd
 
 configfile: "config.yaml"
 
-print(config['thresholds'])
-print(config['reference']['species'])
+print(f"thresholds: {config['thresholds']}")
+print(f"species: {config['reference']['species']}")
 
 rule all:
     input:
@@ -20,7 +21,8 @@ rule all:
         expand("output/treeinform/threshold_{threshold}/{species}/{species}_transcripts.{kind}.fasta",
                 threshold=config['thresholds'], 
                 species=config['reference']['species'],
-                kind=["collapsed","strict"])
+                kind=["collapsed","strict"]) +
+        ["output/summary/aggregate_stats.txt"]
 
 
 rule generate_longest_ORFs:
@@ -225,3 +227,70 @@ rule busco_scores:
         rm $sanitized_fasta
         """
 
+rule aggregate_stats:
+    input:
+        transcripts=expand("output/treeinform/threshold_{threshold}/{species}/{species}_transcripts.{kind}.fasta",
+                           threshold=config['thresholds'], 
+                           species=config['reference']['species'],
+                           kind=["collapsed", "strict"]),
+        busco=expand("output/busco_threshold_{threshold}_{species}_{kind}/short_summary.specific.metazoa_odb10.busco_threshold_{threshold}_{species}_{kind}.txt",
+                     threshold=config['thresholds'], 
+                     species=config['reference']['species'],
+                     kind=["collapsed", "strict"])
+    output:
+        "output/summary/aggregate_stats.txt"
+    run:
+        # Create the DataFrame with the desired columns
+        df = pd.DataFrame(columns=['threshold', 'species', 'kind', 'num_seqs', 'busco_single', 'busco_duplicated', 'busco_fragmented', 'busco_missing', 'busco_total'])
+
+        # Fill in the DataFrame for transcripts
+        for transcript_file in input.transcripts:
+            seq_count = sum(1 for _ in SeqIO.parse(transcript_file, "fasta"))
+            threshold, species, kind = re.findall(r"threshold_([^/]+)/([^/]+)/[^/]+_transcripts.([^/]+).fasta", transcript_file)[0]
+            # Add seq_count to DataFrame
+            df = df.append({'threshold': threshold, 'species': species, 'kind': kind, 'num_seqs': seq_count}, ignore_index=True)
+
+        # Fill in the DataFrame for busco
+        for busco_file in input.busco:
+            # Example busco_file:
+            # output/busco_threshold_20_Cyanea_sp_strict/short_summary.specific.metazoa_odb10.busco_threshold_20_Cyanea_sp_strict.txt
+            match = re.search(r"odb10\.busco_threshold_([\d\.]+)_(.+)_([^/]+?)\.txt", busco_file)
+            if match:
+                threshold, species, kind = match.groups()
+            else:
+                raise ValueError(f"No match found in the file name: {busco_file}")
+
+            complete_buscos, complete_single_buscos, complete_dup_buscos, fragmented_buscos, missing_buscos, total_buscos = [0] * 6  # Initialize all counts
+            with open(busco_file, 'r') as f:
+                for line in f:
+                    if line.startswith('#'):
+                        continue
+                    if 'Complete BUSCOs' in line:
+                        complete_buscos = int(line.split()[0])
+                    elif 'Complete and single-copy BUSCOs' in line:
+                        complete_single_buscos = int(line.split()[0])
+                    elif 'Complete and duplicated BUSCOs' in line:
+                        complete_dup_buscos = int(line.split()[0])
+                    elif 'Fragmented BUSCOs' in line:
+                        fragmented_buscos = int(line.split()[0])
+                    elif 'Missing BUSCOs' in line:
+                        missing_buscos = int(line.split()[0])
+                    elif 'Total BUSCO groups searched' in line:
+                        total_buscos = int(line.split()[0])
+            
+            print(f"BUSCO file: {busco_file}")
+            print(f"Extracted values - single: {complete_single_buscos}, duplicated: {complete_dup_buscos}, fragmented: {fragmented_buscos}, missing: {missing_buscos}, total: {total_buscos}")
+
+            # Update the DataFrame with BUSCO stats
+            mask = (df['threshold'] == threshold) & (df['species'] == species) & (df['kind'] == kind)
+            if df[mask].empty:
+                print(f"No matching rows found in DataFrame for {threshold}, {species}, {kind}")
+            else:
+                df.loc[mask, 'busco_single'] = complete_single_buscos
+                df.loc[mask, 'busco_duplicated'] = complete_dup_buscos
+                df.loc[mask, 'busco_fragmented'] = fragmented_buscos
+                df.loc[mask, 'busco_missing'] = missing_buscos
+                df.loc[mask, 'busco_total'] = total_buscos
+
+        # Writing DataFrame to file
+        df.to_csv(output[0], sep='\t', index=False)
