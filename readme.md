@@ -8,10 +8,10 @@ To create a conda environment to run this workflow:
 
     conda create -y -n isoseq -c bioconda -c conda-forge -c anaconda scipy snakemake bioconda busco=5.5.0 transdecoder orthofinder pandas biopython seaborn matplotlib ete3 graphviz eggnog-mapper
 
-From the `ref_optimization` directory, do a dry run with:
+From the `isoseq_optimization` directory, do a dry run with:
 
-    snakemake -n --snakefile workflow/Snakefile
-
+    snakemake -np
+    
 To view the DAG:
 
    snakemake --dag | dot -Tpng > dag.png
