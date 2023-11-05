@@ -11,11 +11,16 @@ print(config['reference']['species'])
 rule all:
     input:
         expand("output/treeinform/threshold_{threshold}/{species}/{species}_annotated.collapsed.fasta", 
-               threshold=config['thresholds'], 
-               species=config['reference']['species']) +
-        expand("output/busco_threshold_{threshold}_{species}/short_summary.specific.metazoa_odb10.busco_threshold_{threshold}_{species}.txt",
-               threshold=config['thresholds'], 
-               species=config['reference']['species'])
+                threshold=config['thresholds'], 
+                species=config['reference']['species']) +
+        expand("output/busco_threshold_{threshold}_{species}_{kind}/short_summary.specific.metazoa_odb10.busco_threshold_{threshold}_{species}_{kind}.txt",
+                threshold=config['thresholds'], 
+                species=config['reference']['species'],
+                kind=["collapsed","strict"]) +
+        expand("output/treeinform/threshold_{threshold}/{species}/{species}_transcripts.{kind}.fasta",
+                threshold=config['thresholds'], 
+                species=config['reference']['species'],
+                kind=["collapsed","strict"])
 
 
 rule generate_longest_ORFs:
@@ -130,7 +135,8 @@ rule collapse_with_treeinform:
         gene_trees="output/orthofinder/{species}/Gene_Trees/",
         fasta="resources/sequences/{species}.annotated.pep.fasta"
     output:
-        collapsed_proteins="output/treeinform/threshold_{threshold}/{species}/{species}_annotated.collapsed.fasta"
+        collapsed_proteins="output/treeinform/threshold_{threshold}/{species}/{species}_annotated.collapsed.fasta",
+        strict_proteins="output/treeinform/threshold_{threshold}/{species}/{species}_annotated.strict.fasta"
     params:
         outdir="output/treeinform/threshold_{threshold}/{species}"
     log:
@@ -143,23 +149,79 @@ rule collapse_with_treeinform:
         python scripts/treeinform_collapse.py -s {input.fasta} -gt {input.gene_trees} -t {wildcards.threshold} -sp {wildcards.species}_annotated -o {params.outdir} > {log} 2>&1
         """
 
-rule busco_scores:
-    """
-    Assess completeness of collapsed reference transcriptome
-    with BUSCO 
-    """
+rule proteins_to_transcripts:
     input:
-        "output/treeinform/threshold_{threshold}/{species}/{species}_annotated.collapsed.fasta"
+        # kind is either collapsed or strict
+        proteins="output/treeinform/threshold_{threshold}/{species}/{species}_annotated.{kind}.fasta",
+        transcriptome = config["reference"]["path"]
     output:
-        "output/busco_threshold_{threshold}_{species}/short_summary.specific.metazoa_odb10.busco_threshold_{threshold}_{species}.txt"
+        transcripts="output/treeinform/threshold_{threshold}/{species}/{species}_transcripts.{kind}.fasta"
+    run:
+        # A protein header:
+        # >transcript/10.p2 type:complete gc:universal transcript/10:2803-5241(+) SPARC-related modular calcium-binding protein
+        #
+        # A transcript header:
+        # >transcript/10 full_length_coverage=2;length=5637
+        def proteins_to_transcripts(protein_file, transcripts_file, out_file):
+            transcripts = {}
+            with open(transcripts_file) as input_transcript_seqs:
+                for record in SeqIO.parse(input_transcript_seqs, "fasta"):
+                    match = re.search(r'transcript/(\d+)', record.id)
+                    if match:
+                        index = match.group(1)
+                        transcripts[index] = record
+                    else:
+                        raise ValueError(f"No match found for the transcript index in: {record.id}")
+
+            proteins = {}
+            annotations = {}
+            with open(protein_file) as input_prot_seqs:
+                for record in SeqIO.parse(input_prot_seqs, "fasta"):
+                    match = re.search(r'transcript/(\d+)', record.id)
+                    if match:
+                        index = match.group(1)
+                        proteins[index] = record
+                        
+                        match_annotation = re.search(r'\) (.+)', record.id)
+                        annotations[index] = match_annotation.group(1) if match_annotation else ''
+                    else:
+                        raise ValueError(f"No match found for the transcript index in the protein ID: {record.id}")
+
+            with open(out_file, 'w') as output_seqs:
+                for index in proteins.keys():
+                    if index not in transcripts:
+                        raise ValueError(f"Protein index {index} not found in transcripts.")
+                    
+                    transcript_record = transcripts[index]
+                    annotated_header = f"{transcript_record.description} {annotations[index]}"
+                    transcript_record.description = annotated_header
+                    transcript_record.id = f"{transcript_record.id} {annotations[index]}"
+                    SeqIO.write(transcript_record, output_seqs, "fasta")
+
+        proteins_to_transcripts(input.proteins, input.transcriptome, output.transcripts)
+
+rule busco_scores:
+    input:
+        fasta="output/treeinform/threshold_{threshold}/{species}/{species}_annotated.{kind}.fasta"
+    output:
+        busco="output/busco_threshold_{threshold}_{species}_{kind}/short_summary.specific.metazoa_odb10.busco_threshold_{threshold}_{species}_{kind}.txt"
     wildcard_constraints:
         threshold="\d+(\.\d+)?"
     threads: workflow.cores
     params:
         mode="protein",
         lineage="/gpfs/gibbs/data/db/busco/metazoa_odb10",
-        filename="busco_threshold_{threshold}_{species}"
+        filename="busco_threshold_{threshold}_{species}_{kind}"
     shell:
         """
-        busco -i {input} -o {params.filename} --force --out_path output/ -l {params.lineage} -m {params.mode} -c {threads}
+        # Create a sanitized version of the input file
+        sanitized_fasta=$(mktemp)
+        cat {input.fasta} | sed 's|/|_|g' > $sanitized_fasta
+
+        # Run BUSCO using the sanitized fasta file
+        busco -i $sanitized_fasta -o {params.filename} --force --out_path output/ -l {params.lineage} -m {params.mode} -c {threads}
+
+        # Remove the temporary sanitized fasta file
+        rm $sanitized_fasta
         """
+
