@@ -1,4 +1,10 @@
 # Raw data
-resources/rawdata
-# Reference
-resources/isoseq
+isoseq_optimization/resources/rawdata
+
+isoseq_optimization/results
+isoseq_optimization/output
+isoseq_optimization/logs
+isoseq_optimization/.snakemake
+isoseq_optimization/resources/sequences/*.fasta
+isoseq_optimization/resources/isoseq/*.fasta
+isoseq_optimization/snake.txt
