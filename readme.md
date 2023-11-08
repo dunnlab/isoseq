@@ -22,6 +22,9 @@ to override the configurations in `config.yaml``.
 
 Do a run with the following, substitute each [] with the values specific to your analysis:
 
+    conda activate isoseq
     snakemake --cores=[cores] --config species=[Genus_species] transcriptome=[path to transcriptome] proteomes=[path to proteome folder]
 
 To do a dry run, replace `--cores=[cores]` with `-np`.
+
+Or copy `batch_snake.sh` and modify it for your needs.

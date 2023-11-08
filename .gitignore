@@ -6,3 +6,6 @@ resources
 logs
 .snakemake
 snake.txt
+
+
+batch.sh

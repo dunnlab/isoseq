@@ -27,7 +27,7 @@ rule all:
 
 rule copy_proteomes:
     output:
-        touch("logs/proteomes_copied.flag")
+        touch("resources/sequences/proteomes_copied.flag")
     params:
         src = config['proteomes'],
         dest = "resources/sequences/"
@@ -237,7 +237,7 @@ rule orthofinder:
     """
     input:
         "resources/sequences/{species}.annotated.pep.fasta",
-        "logs/proteomes_copied.flag"
+        "resources/sequences/proteomes_copied.flag"
     output:
         directory("output/orthofinder/{species}/Gene_Trees/")
     log:

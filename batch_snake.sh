@@ -10,4 +10,4 @@
 
 module load miniconda
 conda activate isoseq
-snakemake --cores $SLURM_CPUS_PER_TASK --config species=Cyanea_sp transcriptome=cyanea_clustered.fasta
+snakemake --cores $SLURM_CPUS_PER_TASK --config species=Cyanea_sp transcriptome=W7.clustered.hq.fasta
