@@ -13,22 +13,15 @@ To create a conda environment to run this workflow:
 You need two inputs for this workflow:
 
 - An isoseq dataset. It should be the `.hq.fasta` output of the clustering workflow described at https://isoseq.how/clustering/cli-workflow.html.
-- A set of complete proteomes from closely related species.
-
-Clone this repo. Place the `.hq.fasta` isoseq file in `resources/isoseq`. Update the reference path and reference species in the `config.yaml`.
-
-Place the proteomes in `resources/sequences`. Each file should be named `Genus_species.pep.fasta`, the species names that will appear in the trees will be parsed from these names.
+- A directory with set of complete proteomes from closely related species. Each file should be named `Genus_species.pep.fasta`, the species names that will appear in the trees will be parsed from these names.
 
 ## Running the workflow
 
-From the `isoseq_optimization` directory, do a dry run with:
+You can use this repo to run an analysis without modifing any of the files here, just specify the configurations at the command line
+to override the configurations in `config.yaml``.
 
-    snakemake -np
+Do a run with the following, substitute each [] with the values specific to your analysis:
 
-Do an actual run with the batch script, or with:
+    snakemake --cores=[cores] --config species=[Genus_species] transcriptome=[path to transcriptome] proteomes=[path to proteome folder]
 
-    snakemake --cores=4
-    
-To view the DAG:
-
-   snakemake --dag | dot -Tpng > dag.png
+To do a dry run, replace `--cores=[cores]` with `-np`.

@@ -7,26 +7,40 @@ import pandas as pd
 configfile: "config.yaml"
 
 print(f"thresholds: {config['thresholds']}")
-print(f"species: {config['reference']['species']}")
+print(f"species: {config['species']}")
 
 rule all:
     input:
         expand("output/treeinform/threshold_{threshold}/{species}/{species}_annotated.collapsed.fasta", 
                 threshold=config['thresholds'], 
-                species=config['reference']['species']) +
+                species=config['species']) +
         expand("output/busco_threshold_{threshold}_{species}_{kind}/short_summary.specific.metazoa_odb10.busco_threshold_{threshold}_{species}_{kind}.txt",
                 threshold=config['thresholds'], 
-                species=config['reference']['species'],
+                species=config['species'],
                 kind=["collapsed","strict"]) +
         expand("output/treeinform/threshold_{threshold}/{species}/{species}_transcripts.{kind}.fasta",
                 threshold=config['thresholds'], 
-                species=config['reference']['species'],
+                species=config['species'],
                 kind=["collapsed","strict"]) +
         ["output/summary/aggregate_stats.txt"]
 
+
+rule copy_proteomes:
+    output:
+        touch("logs/proteomes_copied.flag")
+    params:
+        src = config['proteomes'],
+        dest = "resources/sequences/"
+    shell:
+        """
+        mkdir -p {params.dest}
+        cp {params.src}/*.fasta dest
+        """
+    
+
 rule sanitize_headers:
     input:
-        raw_fasta = config["reference"]["path"]
+        raw_fasta = config["transcriptome"]
     output:
         sanitized_fasta="output/{species}.sanitized.fasta"
     run:
@@ -164,6 +178,7 @@ rule run_emapper:
     shell:
         """
         emapper.py -i {input.pep_fasta} -m diamond -o {params.out_prefix} --cpu {threads} --output_dir {params.out_dir} > {log} 2>&1
+        rm -r emappertmp_dmdn*
         """
 
 rule update_fasta_headers:
@@ -221,7 +236,8 @@ rule orthofinder:
     Infer gene trees from set of protein sequences downloaded from public databases.
     """
     input:
-        "resources/sequences/{species}.annotated.pep.fasta"
+        "resources/sequences/{species}.annotated.pep.fasta",
+        "logs/proteomes_copied.flag"
     output:
         directory("output/orthofinder/{species}/Gene_Trees/")
     log:
@@ -358,11 +374,11 @@ rule aggregate_stats:
     input:
         transcripts=expand("output/treeinform/threshold_{threshold}/{species}/{species}_transcripts.{kind}.fasta",
                            threshold=config['thresholds'], 
-                           species=config['reference']['species'],
+                           species=config['species'],
                            kind=["collapsed", "strict"]),
         busco=expand("output/busco_threshold_{threshold}_{species}_{kind}/short_summary.specific.metazoa_odb10.busco_threshold_{threshold}_{species}_{kind}.txt",
                      threshold=config['thresholds'], 
-                     species=config['reference']['species'],
+                     species=config['species'],
                      kind=["collapsed", "strict"])
     output:
         "output/summary/aggregate_stats.txt"

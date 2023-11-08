@@ -1,17 +1,14 @@
 # The isoseq reference under investigation
-reference:
-  species: Cyanea_sp
-  path: resources/isoseq/cyanea_clustered.fasta
+species: Cyanea_sp
+transcriptome: cyanea_clustered.fasta
 
+# Path to directory containing proteomes for all the other species
+proteomes: /gpfs/ycga/work/dunn/cwd7/databases/proteomes_cnidaria
+
+# Treeinform branch length thresholds
 thresholds: [0,0.5,1,2,3,4,5,8,10,15,20,25]
 
-# Path to directory containing data for all the other species
-others:
-  path: resources/sequences
-
 # Databases
-
 busco: /gpfs/gibbs/data/db/busco
-
 diamond: /gpfs/ycga/work/dunn/cwd7/databases/diamond/swissprot
 
