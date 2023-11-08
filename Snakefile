@@ -34,7 +34,7 @@ rule copy_proteomes:
     shell:
         """
         mkdir -p {params.dest}
-        cp {params.src}/*.fasta dest
+        cp {params.src}/*.fasta {dest}
         """
     
 
