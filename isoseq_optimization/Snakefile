@@ -24,11 +24,113 @@ rule all:
                 kind=["collapsed","strict"]) +
         ["output/summary/aggregate_stats.txt"]
 
+rule sanitize_headers:
+    input:
+        raw_fasta = config["reference"]["path"]
+    output:
+        sanitized_fasta="output/{species}.sanitized.fasta"
+    run:
+        # So that we can ingest transcripts from other sources, constrain headers to isoseq
+        # format if needed
+        # An isoseq transcript header:
+        # >transcript/10 full_length_coverage=2;length=5637
+
+        records = []
+        clean = False
+        i = 0
+        read_fasta(input.raw_fasta):
+        with open(input.raw_fasta) as input_transcript_seqs:
+            for record in SeqIO.parse(input_transcript_seqs, "fasta"):
+                i = i + 1
+                match = re.search(r'transcript/\d+ full_length_coverage=\d+;length=\d+', record.id)
+                if match:
+                    if n == 1:
+                        clean = True
+                    else:
+                        raise ValueError(f"Mixed header naming scheme")
+                if not clean:
+                    seq_length = len(record.seq)
+                    record.description = f"transcript/{i} full_length_coverage=0;length={seq_length}",
+                records.append(record)
+
+        with open(output.sanitized_fasta, "w") as output_handle:
+            SeqIO.write(records, output_handle, "fasta")
+
+rule diamond_blastx:
+    input:
+        seqs="output/{species}.sanitized.fasta",
+        db=config['diamond']
+    output:
+        table='output/blastx_{species}.tsv'
+    params:
+        evalue=1e-5
+    shell:
+        """
+        diamond blastx \
+            --db {input.db} \
+            --query {input.seqs} \
+            --out {output.table} \
+            --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore \
+            --max-target-seqs 1 \
+            --evalue {params.evalue}
+        """
+
+rule filter_fasta_based_on_diamond_hits:
+    input:
+        seqs="output/{species}.sanitized.fasta",
+        hits="output/blastx_{species}.tsv"
+    output:
+        filtered_fasta="output/{species}.filtered.fasta"
+    run:
+        from Bio import SeqIO
+        from Bio.Seq import Seq
+
+        # Read the BLASTx results and store hits with reverse orientation
+        reverse_hits = set()
+        forward_hits = set()
+        with open(input.hits, 'r') as blastx_f:
+            for line in blastx_f:
+                parts = line.strip().split('\t')
+                if len(parts) > 11:
+                    seq_id, evalue, sstart, send = parts[0], float(parts[10]), int(parts[8]), int(parts[9])
+                    if evalue <= 1e-5:
+                        if send < sstart:  # This implies the hit is in reverse orientation
+                            reverse_hits.add(seq_id)
+                        else:  # Forward orientation
+                            forward_hits.add(seq_id)
+
+        # Filter the FASTA file
+        filtered_seqs = []
+        total_records = 0
+        records_with_hits = 0
+        records_reverse_complemented = 0
+
+        for record in SeqIO.parse(input.seqs, 'fasta'):
+            total_records += 1
+            if record.id in reverse_hits:
+                # If in reverse orientation, add the reverse complement
+                record.seq = record.seq.reverse_complement()
+                filtered_seqs.append(record)
+                records_with_hits += 1
+                records_reverse_complemented += 1
+            elif record.id in forward_hits:
+                # If a forward hit, add the original sequence
+                filtered_seqs.append(record)
+                records_with_hits += 1
+
+        # Write the filtered sequences to the output file
+        SeqIO.write(filtered_seqs, output.filtered_fasta, 'fasta')
+
+        # Print the counts
+        print(f"Total records read: {total_records}")
+        print(f"Records with hits: {records_with_hits}")
+        print(f"Records that were reverse complemented: {records_reverse_complemented}")
+
 
 rule generate_longest_ORFs:
     message: "Generate open reading frames from reference transcriptome."
     input:
-        transcriptome_path = config["reference"]["path"]
+        transcriptome_path = "output/{species}.filtered.fasta"
     output:
         pep_fasta="output/{species}.pep.fasta"
     params:
@@ -155,7 +257,7 @@ rule proteins_to_transcripts:
     input:
         # kind is either collapsed or strict
         proteins="output/treeinform/threshold_{threshold}/{species}/{species}_annotated.{kind}.fasta",
-        transcriptome = config["reference"]["path"]
+        transcriptome = "output/{species}.filtered.fasta"
     output:
         transcripts="output/treeinform/threshold_{threshold}/{species}/{species}_transcripts.{kind}.fasta"
     run:
