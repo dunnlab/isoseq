@@ -11,7 +11,7 @@ print(f"species: {config['species']}")
 
 rule all:
     input:
-        expand("output/treeinform/threshold_{threshold}/{species}/{species}_annotated.collapsed.fasta", 
+        expand("output/treeinform/{species}_{threshold}_protein.collapsed.fasta", 
                 threshold=config['thresholds'], 
                 species=config['species']) +
         expand("output/busco_threshold_{threshold}_{species}_{kind}/short_summary.specific.metazoa_odb10.busco_threshold_{threshold}_{species}_{kind}.txt",
@@ -178,7 +178,6 @@ rule run_emapper:
     shell:
         """
         emapper.py -i {input.pep_fasta} -m diamond -o {params.out_prefix} --cpu {threads} --output_dir {params.out_dir} > {log} 2>&1
-        rm -r emappertmp_dmdn*
         """
 
 rule update_fasta_headers:
@@ -260,8 +259,8 @@ rule collapse_with_treeinform:
         gene_trees="output/orthofinder/{species}/Gene_Trees/",
         fasta="resources/sequences/{species}.annotated.pep.fasta"
     output:
-        collapsed_proteins="output/treeinform/threshold_{threshold}/{species}/{species}_annotated.collapsed.fasta",
-        strict_proteins="output/treeinform/threshold_{threshold}/{species}/{species}_annotated.strict.fasta"
+        collapsed_proteins="output/treeinform/{species}_{threshold}_protein.collapsed.fasta",
+        strict_proteins="output/treeinform/{species}_{threshold}_protein.strict.fasta"
     params:
         outdir="output/treeinform/threshold_{threshold}/{species}"
     log:
@@ -277,7 +276,7 @@ rule collapse_with_treeinform:
 rule proteins_to_transcripts:
     input:
         # kind is either collapsed or strict
-        proteins="output/treeinform/threshold_{threshold}/{species}/{species}_annotated.{kind}.fasta",
+        proteins="output/treeinform/{species}_{threshold}_protein.{kind}.fasta",
         transcriptome = "output/{species}.filtered.fasta"
     output:
         transcripts="output/treeinform/threshold_{threshold}/{species}/{species}_transcripts.{kind}.fasta"
@@ -347,7 +346,7 @@ rule proteins_to_transcripts:
 
 rule busco_scores:
     input:
-        fasta="output/treeinform/threshold_{threshold}/{species}/{species}_annotated.{kind}.fasta"
+        fasta="output/treeinform/{species}_{threshold}_protein.{kind}.fasta"
     output:
         busco="output/busco_threshold_{threshold}_{species}_{kind}/short_summary.specific.metazoa_odb10.busco_threshold_{threshold}_{species}_{kind}.txt"
     wildcard_constraints:
@@ -381,7 +380,7 @@ rule aggregate_stats:
                      species=config['species'],
                      kind=["collapsed", "strict"])
     output:
-        "output/summary/aggregate_stats.txt"
+        "output/aggregate_stats.tsv"
     run:
         # Create the DataFrame with the desired columns
         df = pd.DataFrame(columns=['threshold', 'species', 'kind', 'num_seqs', 'busco_single', 'busco_duplicated', 'busco_fragmented', 'busco_missing', 'busco_total'])
