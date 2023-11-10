@@ -262,15 +262,15 @@ rule collapse_with_treeinform:
         collapsed_proteins="output/treeinform/{species}_{threshold}_protein.collapsed.fasta",
         strict_proteins="output/treeinform/{species}_{threshold}_protein.strict.fasta"
     params:
-        outdir="output/treeinform/threshold_{threshold}/{species}"
+        outroot="output/treeinform/{species}_{threshold}_protein"
     log:
         "logs/treeprune_{species}_{threshold}.log"
     shell:
         """
-        mkdir -p {params.outdir}
+        mkdir -p output/treeinform/
 
         # Need to add _annotated to species since this is added to the filename in rule update_fasta_headers  
-        python scripts/treeinform_collapse.py -s {input.fasta} -gt {input.gene_trees} -t {wildcards.threshold} -sp {wildcards.species}_annotated -o {params.outdir} > {log} 2>&1
+        python scripts/treeinform_collapse.py -s {input.fasta} -gt {input.gene_trees} -t {wildcards.threshold} -sp {wildcards.species}_annotated -o {params.outroot} > {log} 2>&1
         """
 
 rule proteins_to_transcripts:

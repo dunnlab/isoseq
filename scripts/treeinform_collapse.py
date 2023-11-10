@@ -214,11 +214,11 @@ def filter_sequences(candidate_variants, selected_variants, peptides):
     return filtered_sequences
 
 
-def export_variants(candidate_variants, species_of_interest, outdir):
+def export_variants(candidate_variants, species_of_interest, out_name):
     """
     Export csv file with one set of variants per line
     """
-    outfile = f"{outdir}/{species_of_interest}.variants.csv"
+    outfile = f"{out_name}.variants.csv"
     with open(outfile, "w") as out:
         for set_of_variants in candidate_variants:
             lst = ",".join(
@@ -230,7 +230,7 @@ def export_variants(candidate_variants, species_of_interest, outdir):
 def main(args):
     protein_file = args.s
     gene_trees_folder = args.gt
-    outdir_name = args.o
+    out_name = args.o
     threshold_value = float(args.t)
     species_of_interest = args.sp
 
@@ -243,8 +243,8 @@ def main(args):
     print(f"{len(candidate_variants)} sets of candidate variants identified.")
 
     print("Exporting candidate variants...")
-    export_variants(candidate_variants, species_of_interest, outdir_name)
-    print(f"Candidate variants exported to {outdir_name}/{species_of_interest}.variants.csv")
+    export_variants(candidate_variants, species_of_interest, out_name)
+    print(f"Candidate variants exported to {out_name}.variants.csv")
 
     print("Creating protein length dictionary...")
     new_protein_lengths = fix_special_characters(create_protein_length_dictionary(protein_file))
@@ -259,7 +259,7 @@ def main(args):
     print(f"{len(final_sequences)} sequences retained after filtering.")
 
     print("Exporting final sequences...")
-    outfile2 = f"{outdir_name}/{species_of_interest}.collapsed.fasta"
+    outfile2 = f"{out_name}.collapsed.fasta"
     with open(outfile2, "w") as out2:
         for sequence in final_sequences:
             SeqIO.write(sequence, out2, "fasta")
@@ -270,7 +270,7 @@ def main(args):
     print(f"Gathered {len(tips_from_trees)} tips from trees.")
 
     print("Exporting strict sequences...")
-    strict_outfile = f"{outdir_name}/{species_of_interest}.strict.fasta"
+    strict_outfile = f"{out_name}.strict.fasta"
     with open(strict_outfile, "w") as strict_out:
         n = 0
         for sequence in final_sequences:
@@ -329,7 +329,7 @@ if __name__ == "__main__":
         help="subtree length value under which sequences are considered variants",
     )
     parser.add_argument(
-        "-o", "-outdir", type=str, required=False, default=".", help="output directory"
+        "-o", "-out", type=str, required=False, default=".", help="output root, can include path and filename prefix"
     )
 
     args = parser.parse_args()
