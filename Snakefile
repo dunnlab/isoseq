@@ -22,7 +22,7 @@ rule all:
                 threshold=config['thresholds'], 
                 species=config['species'],
                 kind=["collapsed","strict"]) +
-        ["output/summary/aggregate_stats.txt"]
+        ["output/aggregate_stats.tsv"]
 
 
 rule copy_proteomes:
