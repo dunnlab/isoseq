@@ -3,6 +3,7 @@ import os
 from datetime import date
 from Bio import SeqIO
 import pandas as pd
+import re
 
 configfile: "config.yaml"
 
@@ -44,28 +45,26 @@ rule sanitize_headers:
     output:
         sanitized_fasta="output/{species}.sanitized.fasta"
     run:
-        # So that we can ingest transcripts from other sources, constrain headers to isoseq
-        # format if needed
-        # An isoseq transcript header:
-        # >transcript/10 full_length_coverage=2;length=5637
 
         records = []
-        clean = False
-        i = 0
+        clean = True  # Initially assume the file is clean
+
+        # Check each record's header format
         with open(input.raw_fasta) as input_transcript_seqs:
             for record in SeqIO.parse(input_transcript_seqs, "fasta"):
-                i = i + 1
-                match = re.search(r'transcript/\d+ full_length_coverage=\d+;length=\d+', record.id)
-                if match:
-                    if n == 1:
-                        clean = True
-                    else:
-                        raise ValueError(f"Mixed header naming scheme")
+                if not re.search(r'transcript/\d+ full_length_coverage=\d+;length=\d+', record.id):
+                    clean = False
+                    break
+
+        # Re-read the file to process records
+        with open(input.raw_fasta) as input_transcript_seqs:
+            for i, record in enumerate(SeqIO.parse(input_transcript_seqs, "fasta"), start=1):
                 if not clean:
                     seq_length = len(record.seq)
                     record.description = f"transcript/{i} full_length_coverage=0;length={seq_length}"
                 records.append(record)
 
+        # Write to output
         with open(output.sanitized_fasta, "w") as output_handle:
             SeqIO.write(records, output_handle, "fasta")
 
@@ -109,9 +108,10 @@ rule filter_fasta_based_on_diamond_hits:
             for line in blastx_f:
                 parts = line.strip().split('\t')
                 if len(parts) > 11:
-                    seq_id, evalue, sstart, send = parts[0], float(parts[10]), int(parts[8]), int(parts[9])
+                    seq_id, evalue, qstart, qend, sstart, send = parts[0], float(parts[10]), int(parts[6]), int(parts[7]), int(parts[8]), int(parts[9])
                     if evalue <= 1e-5:
-                        if send < sstart:  # This implies the hit is in reverse orientation
+                        # reverse hits seem to have reversed queries, but will check both to be sure
+                        if (send < sstart) ^ (qend < qstart):  # Use exclusive or to see if just one of them is flipped
                             reverse_hits.add(seq_id)
                         else:  # Forward orientation
                             forward_hits.add(seq_id)

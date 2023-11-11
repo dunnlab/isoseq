@@ -1,6 +1,6 @@
 # The isoseq reference under investigation
 species: Cyanea_sp
-transcriptome: cyanea_clustered.fasta
+transcriptome: W7.clustered.hq.fasta
 
 # Path to directory containing proteomes for all the other species
 proteomes: /gpfs/ycga/work/dunn/cwd7/databases/proteomes_cnidaria

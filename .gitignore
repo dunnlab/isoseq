@@ -4,6 +4,8 @@
 output
 resources
 logs
+busco_downloads
+
 .snakemake
 snake.txt
 
