@@ -10,5 +10,5 @@ thresholds: [0,0.5,1,2,3,4,5,8,10,15,20,25]
 
 # Databases
 busco: /gpfs/gibbs/data/db/busco
-diamond: /gpfs/ycga/work/dunn/cwd7/databases/diamond/swissprot
+diamond: /gpfs/ycga/work/dunn/cwd7/databases/diamond/nr
 
