@@ -61,7 +61,10 @@ rule sanitize_headers:
             for i, record in enumerate(SeqIO.parse(input_transcript_seqs, "fasta"), start=1):
                 if not clean:
                     seq_length = len(record.seq)
-                    record.description = f"transcript/{i} full_length_coverage=0;length={seq_length}"
+                    record.description = ""
+                    record.id = f"transcript/{i} full_length_coverage=0;length={seq_length}"
+                #print(f"  description: {record.description}")
+                #print(f"           id: {record.id}")
                 records.append(record)
 
         # Write to output
