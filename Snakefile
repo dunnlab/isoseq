@@ -275,15 +275,15 @@ rule proteins_to_transcripts:
         transcripts="output/treeinform/{species}_{threshold}_transcripts.{kind}.fasta"
     run:
         # A protein header:
-        # >transcript/10.p2 type:complete gc:universal transcript/10:2803-5241(+) SPARC-related modular calcium-binding protein
+        # >transcript_10.p2 type:complete gc:universal transcript_10:2803-5241(+) SPARC-related modular calcium-binding protein
         #
         # A transcript header:
-        # >transcript/10 full_length_coverage=2;length=5637
+        # >transcript_10
         def proteins_to_transcripts(protein_file, transcripts_file, out_file):
             transcripts = {}
             with open(transcripts_file) as input_transcript_seqs:
                 for record in SeqIO.parse(input_transcript_seqs, "fasta"):
-                    match = re.search(r'transcript/(\d+)', record.id)
+                    match = re.search(r'transcript_(\d+)', record.id)
                     if match:
                         index = match.group(1)
                         transcripts[index] = record
@@ -295,7 +295,7 @@ rule proteins_to_transcripts:
             n = 0
             with open(protein_file) as input_prot_seqs:
                 for record in SeqIO.parse(input_prot_seqs, "fasta"):
-                    match = re.search(r'transcript/(\d+)', record.id)
+                    match = re.search(r'transcript_(\d+)', record.id)
                     if match:
                         index = match.group(1)
                         proteins[index] = record
