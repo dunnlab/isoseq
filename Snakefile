@@ -47,21 +47,25 @@ rule sanitize_headers:
     run:
 
         records = []
-        clean = True  # Initially assume the file is clean
+        has_transcript_index = True  # Initially assume the file has transcript indexes
 
         # Check each record's header format
         with open(input.raw_fasta) as input_transcript_seqs:
             for record in SeqIO.parse(input_transcript_seqs, "fasta"):
-                if not re.search(r'transcript/\d+ full_length_coverage=\d+;length=\d+', record.id):
-                    clean = False
+                if not re.search(r'transcript/\d+', record.id):
+                    has_transcript_index = False
                     break
 
         # Re-read the file to process records
         with open(input.raw_fasta) as input_transcript_seqs:
             for i, record in enumerate(SeqIO.parse(input_transcript_seqs, "fasta"), start=1):
-                if not clean:
-                    seq_length = len(record.seq)
-                    record.description = f"transcript/{i} full_length_coverage=0;length={seq_length}"
+                if has_transcript_index:
+                    match = re.search(r'transcript/(\d+)', record.id)
+                    transcript_index = match.group(1)
+                    record.id = f"transcript_{transcript_index}"
+                else:
+                    record.id = f"transcript_{i}"
+                record.description = record.id
                 records.append(record)
 
         # Write to output
