@@ -12,17 +12,6 @@ print(f"species: {config['species']}")
 
 rule all:
     input:
-        expand("output/treeinform/{species}_{threshold}_protein.collapsed.fasta", 
-                threshold=config['thresholds'], 
-                species=config['species']) +
-        expand("output/busco_threshold_{threshold}_{species}_{kind}/short_summary.specific.metazoa_odb10.busco_threshold_{threshold}_{species}_{kind}.txt",
-                threshold=config['thresholds'], 
-                species=config['species'],
-                kind=["collapsed","strict"]) +
-        expand("output/treeinform/threshold_{threshold}/{species}/{species}_transcripts.{kind}.fasta",
-                threshold=config['thresholds'], 
-                species=config['species'],
-                kind=["collapsed","strict"]) +
         ["output/aggregate_stats.tsv"]
 
 
@@ -283,7 +272,7 @@ rule proteins_to_transcripts:
         proteins="output/treeinform/{species}_{threshold}_protein.{kind}.fasta",
         transcriptome = "output/{species}.filtered.fasta"
     output:
-        transcripts="output/treeinform/threshold_{threshold}/{species}/{species}_transcripts.{kind}.fasta"
+        transcripts="output/treeinform/{species}_{threshold}_transcripts.{kind}.fasta"
     run:
         # A protein header:
         # >transcript/10.p2 type:complete gc:universal transcript/10:2803-5241(+) SPARC-related modular calcium-binding protein
@@ -375,7 +364,7 @@ rule busco_scores:
 
 rule aggregate_stats:
     input:
-        transcripts=expand("output/treeinform/threshold_{threshold}/{species}/{species}_transcripts.{kind}.fasta",
+        transcripts=expand("output/treeinform/{species}_{threshold}_transcripts.{kind}.fasta",
                            threshold=config['thresholds'], 
                            species=config['species'],
                            kind=["collapsed", "strict"]),
@@ -392,7 +381,8 @@ rule aggregate_stats:
         # Fill in the DataFrame for transcripts
         for transcript_file in input.transcripts:
             seq_count = sum(1 for _ in SeqIO.parse(transcript_file, "fasta"))
-            threshold, species, kind = re.findall(r"threshold_([^/]+)/([^/]+)/[^/]+_transcripts.([^/]+).fasta", transcript_file)[0]
+            # threshold, species, kind = re.findall(r"threshold_([^/]+)/([^/]+)/[^/]+_transcripts.([^/]+).fasta", transcript_file)[0]
+            species, threshold, kind = re.findall(r"output/treeinform/([^/]+)_([\.\d]+)_transcripts.(\w+).fasta", transcript_file)[0]
             # Add seq_count to DataFrame
             df = df.append({'threshold': threshold, 'species': species, 'kind': kind, 'num_seqs': seq_count}, ignore_index=True)
 
