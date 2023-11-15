@@ -12,7 +12,11 @@ print(f"species: {config['species']}")
 
 rule all:
     input:
-        ["output/aggregate_stats.tsv"]
+        ["output/aggregate_stats.tsv"] + 
+        expand("output/treeinform/{species}_{threshold}_transcripts.{kind}.gtf", 
+                threshold=config['thresholds'], 
+                species=config['species'],
+                kind=["collapsed","strict"])
 
 
 rule copy_proteomes:
@@ -60,6 +64,7 @@ rule sanitize_headers:
         # Write to output
         with open(output.sanitized_fasta, "w") as output_handle:
             SeqIO.write(records, output_handle, "fasta")
+
 
 rule diamond_blastx:
     input:
@@ -313,8 +318,6 @@ rule proteins_to_transcripts:
 
                     else:
                         raise ValueError(f"No match found for the transcript index in the protein ID: {record.id}")
-                    
-                    
 
             print(f"Number of annotations for {protein_file}: {len(annotations)}")
             n = 0
@@ -336,6 +339,30 @@ rule proteins_to_transcripts:
                     n = n + 1
 
         proteins_to_transcripts(input.proteins, input.transcriptome, output.transcripts)
+
+
+rule generate_gtf:
+    input:
+        transcripts="output/treeinform/{species}_{threshold}_transcripts.{kind}.fasta"
+    output:
+        gtf="output/treeinform/{species}_{threshold}_transcripts.{kind}.gtf"
+    run:
+        # Example fasta header:
+        # >transcript_23 triglyceride mobilization
+        # Example gtf line:
+        # transcript_23	x	exon	1	9573	1	+	.	gene_id "transcript_23"; transcript_id "transcript_23"; gene_name "triglyceride mobilization";
+
+        with open(output.gtf, "w") as gtf_file:
+            with open(input.transcripts) as input_transcript_seqs:
+                for record in SeqIO.parse(input_transcript_seqs, "fasta"):
+                    fields = record.description.split()
+                    id = fields[0]
+                    name = "NA"
+                    if len(fields)  > 1:
+                        name = " ".join(fields[1:])
+                    length = len(record.seq)
+                    gtf_file.write(f'{id}\tx\texon\t1\t{length}\t1\t+\t.\tgene_id "{id}"; transcript_id "{id}"; gene_name "{name}";\n')
+
 
 rule busco_scores:
     input:
