@@ -2,6 +2,20 @@
 
 Adapted from the excellent workflow developed by Natasha Picciani at https://github.com/npicciani/podocoryna/tree/main/ref_optimization . This workflow is based on the phylogenetic refinement of transcriptomes described in [this manuscript](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0244202). 
 
+The primary steps in this workflow are:
+
+- Clean up headers, if needed.
+- Query each sequence against nr rith diamond. Retain only those transcripts with a hit, and orient them in the sense direction.
+- Translate each with transdecoder, using the sense strand only
+- Annote each translated sequence with eggnog
+- Build gene trees with multiple other species using orthofinder
+- Collapse clades of sequences from the same speciess with treeinform, using multiple branch length thresholds
+- Export collapsed protein files. Also export strict files, which are the subset of sequences from collapsed that were in trees. These fasta files are in `output/treeinform`.
+- Generate corresponding transcript files with transcripts corresponding to the sdequences in the collapsed and strict protein files. These fasta files are also in `output/treeinform`.
+- Run BUSCO on the protein files
+- Aggregate numbers of sequences and BUSCO results in a table at `output/aggregate_stats.tsv`
+
+
 ## Installation
 
 To create a conda environment to run this workflow:
