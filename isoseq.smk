@@ -7,6 +7,8 @@ import re
 
 configfile: "config.yaml"
 
+include: "rules/preliminaries.smk"
+
 print(f"thresholds: {config['thresholds']}")
 print(f"species: {config['species']}")
 
