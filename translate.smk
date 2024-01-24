@@ -14,7 +14,7 @@ print(f"species: {config['species']}")
 rule all:
     input:
         expand("resources/sequences/{species}.annotated.pep.fasta", species=config['species']) + 
-		expand("output/busco_threshold_{species}/short_summary.specific.metazoa_odb10.busco_threshold_{species}.txt", species=config['species'])
+	expand("output/busco_threshold_{species}/short_summary.specific.metazoa_odb10.busco_threshold_{species}.txt", species=config['species'])
 
 rule busco_scores:
     input:
