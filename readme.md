@@ -37,7 +37,7 @@ to override the configurations in `config.yaml``.
 Do a run with the following, substitute each [] with the values specific to your analysis:
 
     conda activate isoseq
-    snakemake --cores=[cores] --config species=[Genus_species] transcriptome=[path to transcriptome] proteomes=[path to proteome folder]
+    snakemake --cores=[cores] --snakefile isoseq.smk --config species=[Genus_species] transcriptome=[path to transcriptome] proteomes=[path to proteome folder]
 
 To do a dry run, replace `--cores=[cores]` with `-np`.
 
@@ -48,3 +48,8 @@ Or copy `batch_snake.sh` and modify it for your needs.
 There are now two kinds of sequence output, collapsed and strict. If there is a clade with multiple sequences from the same species, it is collapsed to the single longest sequence if the branch lengths fall below a certain threshold. strict is a subset of collapsed . It includes only sequences for genes in the gene trees. The motivation for this is that if a gene isn't in the gene tree, it can't be collapsed. 
 
 When the workflow completes, check `output/aggregate_stats.tsv` to see how the number of transcripts and BUSCO genes varies with threshold and by collapsed vs strict. Once you have identified the threshold that gives the best results, you can find the protein and transcript files in `output/treeinform/`.
+
+
+## Other workflows
+
+The `translate` workflow is similar to that above, but does not do any phylogenetic refinement. It is useful for quickly translating a transcriptome.
