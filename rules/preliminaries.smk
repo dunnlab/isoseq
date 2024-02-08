@@ -114,7 +114,7 @@ rule generate_longest_ORFs:
     input:
         transcriptome_path = "output/{species}.filtered.fasta"
     output:
-        pep_fasta="output/{species}.pep.fasta"
+        pep_fasta="output/{species}.raw.pep.fasta"
     params:
         outdir = "output/{species}.transdecoder"
     log:
@@ -127,6 +127,35 @@ rule generate_longest_ORFs:
 		transcriptome_base=$(basename {input.transcriptome_path})
         cp {params.outdir}/${{transcriptome_base}}.transdecoder_dir/longest_orfs.pep {output.pep_fasta}
         """
+
+rule filter_translations:
+    input:
+        pep_fasta="output/{species}.raw.pep.fasta"
+    output:
+        pep_fasta="output/{species}.pep.fasta"
+    run:
+        from Bio import SeqIO
+        from Bio.Seq import Seq
+
+        # Filter the FASTA file
+        filtered_seqs = []
+
+        # Raw headers have the following form:
+        # >transcript_24.p1 type:complete gc:universal transcript_24:66-4712(+)
+        # >transcript_24.p2 type:complete gc:universal transcript_24:3934-4371(+)
+        # >transcript_24.p3 type:complete gc:universal transcript_24:4438-4824(+)
+        #
+        # Retain only those with .p1, and trim the header to just the transcript index
+
+        for record in SeqIO.parse(input.pep_fasta, 'fasta'):
+            if record.id.endswith(".p1"):
+                record.id = record.id.split(".")[0]
+                record.description = ""
+                filtered_seqs.append(record)
+
+        # Write the filtered sequences to the output file
+        SeqIO.write(filtered_seqs, output.filtered_pep_fasta, 'fasta')
+
 
 rule run_emapper:
     input:
