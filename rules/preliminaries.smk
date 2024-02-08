@@ -114,7 +114,7 @@ rule generate_longest_ORFs:
     input:
         transcriptome_path = "output/{species}.filtered.fasta"
     output:
-        pep_fasta="output/{species}.unfiltered.pep.fasta"
+        pep_fasta="output/{species}.pep.all.fasta"
     params:
         outdir = "output/{species}.transdecoder"
     log:
@@ -130,7 +130,7 @@ rule generate_longest_ORFs:
 
 rule filter_translations:
     input:
-        pep_fasta="output/{species}.unfiltered.pep.fasta"
+        pep_fasta="output/{species}.pep.all.fasta"
     output:
         pep_fasta="output/{species}.pep.fasta"
     run:
