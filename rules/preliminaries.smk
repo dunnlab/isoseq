@@ -116,13 +116,14 @@ rule generate_longest_ORFs:
     output:
         pep_fasta="output/{species}.pep.all.fasta"
     params:
-        outdir = "output/{species}.transdecoder"
+        outdir = "output/{species}.transdecoder",
+        min_length = 50
     log:
         "logs/transdecoder_{species}.log"
     shell:
         """
         # Use -S flag to be strand specific (top strand) since all transcripts already oriented
-        TransDecoder.LongOrfs -S -t {input.transcriptome_path} --output_dir {params.outdir} > {log} 2>&1
+        TransDecoder.LongOrfs -S -t {input.transcriptome_path} -m {params.min_length} --output_dir {params.outdir} > {log} 2>&1
 
 		transcriptome_base=$(basename {input.transcriptome_path})
         cp {params.outdir}/${{transcriptome_base}}.transdecoder_dir/longest_orfs.pep {output.pep_fasta}
@@ -154,7 +155,7 @@ rule filter_translations:
                 filtered_seqs.append(record)
 
         # Write the filtered sequences to the output file
-        SeqIO.write(filtered_seqs, output.filtered_pep_fasta, 'fasta')
+        SeqIO.write(filtered_seqs, output.pep_fasta, 'fasta')
 
 
 rule run_emapper:
