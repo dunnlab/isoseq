@@ -109,7 +109,7 @@ rule proteins_to_transcripts:
                         index = match.group(1)
                         proteins[index] = record
                         
-                        match_annotation = re.search(r'\([+-]\) (.+)', record.description)
+                        match_annotation = re.search(r' (.+)', record.description)
                         annotations[index] = match_annotation.group(1) if match_annotation else ''
 
                         # Print first few for debugging:
