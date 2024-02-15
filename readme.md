@@ -53,3 +53,10 @@ When the workflow completes, check `output/aggregate_stats.tsv` to see how the n
 ## Other workflows
 
 The `translate` workflow is similar to that above, but does not do any phylogenetic refinement. It is useful for quickly translating a transcriptome.
+
+## Development
+
+To run tests:
+
+    cd scripts
+    python -m tests.test_treeinform_collapse
