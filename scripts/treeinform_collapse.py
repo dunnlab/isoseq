@@ -50,7 +50,9 @@ def identify_candidate_variants(newicks, threshold, species_of_interest):
     e.g. Podocoryna_carnea.
     """
 
+    # A list of sets of candidate variants
     candidates_specific = []
+    
     for newick in newicks:
         tree = ete3.Tree(newick)
         outgroup = tree.get_midpoint_outgroup()

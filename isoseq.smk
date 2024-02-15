@@ -84,7 +84,7 @@ rule proteins_to_transcripts:
         transcripts="output/treeinform/{species}_{threshold}_transcripts.{kind}.fasta"
     run:
         # A protein header:
-        # >transcript_10.p2 type:complete gc:universal transcript_10:2803-5241(+) SPARC-related modular calcium-binding protein
+        # >transcript_10 type:complete gc:universal transcript_10:2803-5241(+) SPARC-related modular calcium-binding protein
         #
         # A transcript header:
         # >transcript_10
